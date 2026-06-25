@@ -1,4 +1,8 @@
-# unthrown
+<p align="center">
+  <img src="docs/public/logo.svg" alt="unthrown" width="128" height="128" />
+</p>
+
+<h1 align="center">unthrown</h1>
 
 > Explicit errors as values for TypeScript — with a separate defect channel for
 > the unexpected, and qualification enforced at every boundary.

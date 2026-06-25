@@ -7,6 +7,9 @@ hero:
   name: "unthrown"
   text: "Explicit errors as values"
   tagline: A small, focused Result type with a separate defect channel for the unexpected — and qualification enforced at every boundary.
+  image:
+    src: /logo.svg
+    alt: unthrown
   actions:
     - theme: brand
       text: Get Started

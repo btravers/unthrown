@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="unthrown logo">
+  <title>unthrown</title>
+  <defs>
+    <linearGradient id="unthrown-bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#c8772e" />
+      <stop offset="1" stop-color="#a85a16" />
+    </linearGradient>
+  </defs>
+  <rect x="16" y="16" width="224" height="224" rx="52" fill="url(#unthrown-bg)" />
+  <!-- A "return" arrow: it rises, turns, and comes back down as a value — un-thrown. -->
+  <g fill="none" stroke="#fff" stroke-width="22" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 92 172 L 92 116 A 36 36 0 0 1 164 116 L 164 172" />
+    <path d="M 140 148 L 164 172 L 188 148" />
+  </g>
+</svg>

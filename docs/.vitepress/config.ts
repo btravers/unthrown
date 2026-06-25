@@ -20,6 +20,8 @@ export default defineConfig({
   },
 
   themeConfig: {
+    logo: "/logo.svg",
+
     nav: [
       { text: "Guide", link: "/guide/why-unthrown" },
       { text: "API", link: "/api/" },
@@ -93,6 +95,7 @@ export default defineConfig({
   },
 
   head: [
+    ["link", { rel: "icon", type: "image/svg+xml", href: "/unthrown/logo.svg" }],
     ["meta", { name: "author", content: "Benoit TRAVERS" }],
     ["meta", { name: "robots", content: "index, follow" }],
     [
@@ -107,6 +110,8 @@ export default defineConfig({
     ["meta", { property: "og:site_name", content: "unthrown" }],
     ["meta", { property: "og:title", content: "unthrown" }],
     ["meta", { property: "og:description", content: SITE_DESCRIPTION }],
+    ["meta", { property: "og:image", content: "https://btravers.github.io/unthrown/logo.svg" }],
     ["meta", { name: "twitter:card", content: "summary" }],
+    ["meta", { name: "twitter:image", content: "https://btravers.github.io/unthrown/logo.svg" }],
   ],
 });
