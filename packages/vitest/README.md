@@ -1,10 +1,10 @@
 # @unthrown/vitest
 
-> [Vitest](https://vitest.dev) matchers for [unthrown](https://github.com/btravers/unthrown)'s
+> [Vitest](https://vitest.dev) matchers for [unthrown](https://github.com/btravstack/unthrown)'s
 > `Result` and `AsyncResult`.
 
-📖 **[Documentation](https://btravers.github.io/unthrown/guide/testing)** ·
-[API Reference](https://btravers.github.io/unthrown/api/vitest/)
+📖 **[Documentation](https://btravstack.github.io/unthrown/guide/testing)** ·
+[API Reference](https://btravstack.github.io/unthrown/api/vitest/)
 
 ```sh
 pnpm add -D @unthrown/vitest

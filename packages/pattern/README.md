@@ -1,10 +1,10 @@
 # @unthrown/pattern
 
 > Thin [ts-pattern](https://github.com/gvergnaud/ts-pattern) integration for
-> [unthrown](https://github.com/btravers/unthrown)'s `Result`.
+> [unthrown](https://github.com/btravstack/unthrown)'s `Result`.
 
-📖 **[Documentation](https://btravers.github.io/unthrown/guide/pattern-matching)** ·
-[API Reference](https://btravers.github.io/unthrown/api/pattern/)
+📖 **[Documentation](https://btravstack.github.io/unthrown/guide/pattern-matching)** ·
+[API Reference](https://btravstack.github.io/unthrown/api/pattern/)
 
 ```sh
 pnpm add @unthrown/pattern ts-pattern

@@ -7,16 +7,16 @@
 > Explicit errors as values for TypeScript — with a separate defect channel for
 > the unexpected, and qualification enforced at every boundary.
 
-[![CI](https://github.com/btravers/unthrown/actions/workflows/ci.yml/badge.svg)](https://github.com/btravers/unthrown/actions/workflows/ci.yml)
+[![CI](https://github.com/btravstack/unthrown/actions/workflows/ci.yml/badge.svg)](https://github.com/btravstack/unthrown/actions/workflows/ci.yml)
 [![npm](https://img.shields.io/npm/v/unthrown.svg)](https://www.npmjs.com/package/unthrown)
 [![license](https://img.shields.io/npm/l/unthrown.svg)](./LICENSE)
 
 Ordinary errors are _unthrown_ — returned as values, not flung up the stack.
 Only a true defect ever throws, and only at `unwrap`.
 
-📖 **[Documentation](https://btravers.github.io/unthrown/)** ·
-[Why unthrown?](https://btravers.github.io/unthrown/guide/why-unthrown) ·
-[Getting Started](https://btravers.github.io/unthrown/guide/getting-started)
+📖 **[Documentation](https://btravstack.github.io/unthrown/)** ·
+[Why unthrown?](https://btravstack.github.io/unthrown/guide/why-unthrown) ·
+[Getting Started](https://btravstack.github.io/unthrown/guide/getting-started)
 
 ## Why?
 
@@ -38,7 +38,7 @@ defect that short-circuits to the edge, where you log it and return a 500.
 - **Small and done-able.** Zero runtime dependencies, ESM-first, dual CJS/ESM,
   fully typed.
 
-See [Why unthrown?](https://btravers.github.io/unthrown/guide/why-unthrown) for
+See [Why unthrown?](https://btravstack.github.io/unthrown/guide/why-unthrown) for
 the comparison with `neverthrow`, `boxed`, and `effect`.
 
 ## Install

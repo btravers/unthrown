@@ -16,7 +16,7 @@ export default defineConfig({
   ignoreDeadLinks: [/^\/api\//, /^\.\/index$/, /^\.\/[a-z-]+$/, /^\.\.\//],
 
   sitemap: {
-    hostname: "https://btravers.github.io/unthrown/",
+    hostname: "https://btravstack.github.io/unthrown/",
   },
 
   themeConfig: {
@@ -27,7 +27,7 @@ export default defineConfig({
       { text: "API", link: "/api/" },
       {
         text: "Changelog",
-        link: "https://github.com/btravers/unthrown/releases",
+        link: "https://github.com/btravstack/unthrown/releases",
       },
     ],
 
@@ -75,7 +75,7 @@ export default defineConfig({
     },
 
     socialLinks: [
-      { icon: "github", link: "https://github.com/btravers/unthrown" },
+      { icon: "github", link: "https://github.com/btravstack/unthrown" },
       { icon: "npm", link: "https://www.npmjs.com/package/unthrown" },
     ],
 
@@ -89,7 +89,7 @@ export default defineConfig({
     },
 
     editLink: {
-      pattern: "https://github.com/btravers/unthrown/edit/main/docs/:path",
+      pattern: "https://github.com/btravstack/unthrown/edit/main/docs/:path",
       text: "Edit this page on GitHub",
     },
   },
@@ -110,8 +110,8 @@ export default defineConfig({
     ["meta", { property: "og:site_name", content: "unthrown" }],
     ["meta", { property: "og:title", content: "unthrown" }],
     ["meta", { property: "og:description", content: SITE_DESCRIPTION }],
-    ["meta", { property: "og:image", content: "https://btravers.github.io/unthrown/logo.svg" }],
+    ["meta", { property: "og:image", content: "https://btravstack.github.io/unthrown/logo.svg" }],
     ["meta", { name: "twitter:card", content: "summary" }],
-    ["meta", { name: "twitter:image", content: "https://btravers.github.io/unthrown/logo.svg" }],
+    ["meta", { name: "twitter:image", content: "https://btravstack.github.io/unthrown/logo.svg" }],
   ],
 });

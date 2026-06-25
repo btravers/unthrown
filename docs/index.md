@@ -19,7 +19,7 @@ hero:
       link: /guide/why-unthrown
     - theme: alt
       text: GitHub
-      link: https://github.com/btravers/unthrown
+      link: https://github.com/btravstack/unthrown
 
 features:
   - icon: 🎯

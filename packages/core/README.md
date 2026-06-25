@@ -3,8 +3,8 @@
 > Explicit errors as values for TypeScript — with a separate defect channel for
 > the unexpected, and qualification enforced at every boundary.
 
-📖 **[Documentation](https://btravers.github.io/unthrown/)** ·
-[API Reference](https://btravers.github.io/unthrown/api/core/)
+📖 **[Documentation](https://btravstack.github.io/unthrown/)** ·
+[API Reference](https://btravstack.github.io/unthrown/api/core/)
 
 ```sh
 pnpm add unthrown
@@ -32,7 +32,7 @@ const status = await user.match({
 - **Tagged errors** — `TaggedError(tag)` + the exhaustive `matchTags` fold.
 - Zero runtime dependencies, ESM-first, dual CJS/ESM.
 
-See the [full documentation](https://btravers.github.io/unthrown/) for the guide
+See the [full documentation](https://btravstack.github.io/unthrown/) for the guide
 and complete API.
 
 ## License
