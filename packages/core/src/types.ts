@@ -49,34 +49,35 @@ export type Awaitable<T> = {
 };
 
 export type AsyncResult<T, E> = Awaitable<Result<T, E>> & {
-  map<U>(f: (value: T) => U | Promise<U>): AsyncResult<U, E>;
-  flatMap<U, E2>(
-    f: (value: T) => Result<U, E2> | AsyncResult<U, E2> | Promise<Result<U, E2>>,
-  ): AsyncResult<U, E | E2>;
-  tap(f: (value: T) => void | Promise<void>): AsyncResult<T, E>;
+  // Combinator callbacks are SYNCHRONOUS. A raw `Promise` must never enter an
+  // AsyncResult method: that would be an un-qualified async boundary, and its
+  // rejection would silently become a defect. Route async work back through a
+  // qualified boundary (`fromPromise` / `fromSafePromise`) and compose it with
+  // `flatMap`/`orElse`/`recoverDefect`. See design-memory §2.3 and §2.9.
+  map<U>(f: (value: T) => U): AsyncResult<U, E>;
+  flatMap<U, E2>(f: (value: T) => Result<U, E2> | AsyncResult<U, E2>): AsyncResult<U, E | E2>;
+  tap(f: (value: T) => void): AsyncResult<T, E>;
   as<U>(value: U): AsyncResult<U, E>;
 
-  mapErr<E2>(f: (error: E) => E2 | Promise<E2>): AsyncResult<T, E2>;
-  orElse<U, E2>(
-    f: (error: E) => Result<U, E2> | AsyncResult<U, E2> | Promise<Result<U, E2>>,
-  ): AsyncResult<T | U, E2>;
-  recover<U>(f: (error: E) => U | Promise<U>): AsyncResult<T | U, never>;
-  tapErr(f: (error: E) => void | Promise<void>): AsyncResult<T, E>;
+  mapErr<E2>(f: (error: E) => E2): AsyncResult<T, E2>;
+  orElse<U, E2>(f: (error: E) => Result<U, E2> | AsyncResult<U, E2>): AsyncResult<T | U, E2>;
+  recover<U>(f: (error: E) => U): AsyncResult<T | U, never>;
+  tapErr(f: (error: E) => void): AsyncResult<T, E>;
 
   recoverDefect<U, E2>(
-    f: (cause: unknown) => Result<U, E2> | AsyncResult<U, E2> | Promise<Result<U, E2>>,
+    f: (cause: unknown) => Result<U, E2> | AsyncResult<U, E2>,
   ): AsyncResult<T | U, E | E2>;
-  tapDefect(f: (cause: unknown) => void | Promise<void>): AsyncResult<T, E>;
+  tapDefect(f: (cause: unknown) => void): AsyncResult<T, E>;
 
   match<R>(cases: {
-    ok: (value: T) => R | Promise<R>;
-    err: (error: E) => R | Promise<R>;
-    defect: (cause: unknown) => R | Promise<R>;
+    ok: (value: T) => R;
+    err: (error: E) => R;
+    defect: (cause: unknown) => R;
   }): Promise<R>;
   unwrap(): Promise<T>;
   unwrapErr(): Promise<E>;
   unwrapOr(fallback: T): Promise<T>;
-  unwrapOrElse(f: (error: E) => T | Promise<T>): Promise<T>;
+  unwrapOrElse(f: (error: E) => T): Promise<T>;
   getOrNull(): Promise<T | null>;
   getOrUndefined(): Promise<T | undefined>;
 };

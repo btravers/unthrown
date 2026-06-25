@@ -29,7 +29,11 @@ not flung up the stack. Only a true defect ever throws (at `unwrap`).
    nullable third-party APIs goes through `fromNullable`. Do not add `Option`.
 3. **Qualification is enforced at every boundary.** `fromPromise` / `fromThrowable`
    take a mandatory `qualify: (cause: unknown) => E | Defect`. There is no path
-   that produces `unknown` in `E`. The boundary forces a triage decision.
+   that produces `unknown` in `E`. The boundary forces a triage decision. This is
+   also why **`AsyncResult` combinator callbacks are synchronous** — a raw
+   `Promise` may never enter an `AsyncResult` method (its rejection would
+   silently become a defect, skipping the triage). Async work re-enters only
+   through `fromPromise` / `fromSafePromise` and composes via `flatMap`.
 4. **`TaggedError` is the error convention** (à la Effect's `Data.TaggedError`):
    a `_tag` discriminant on a class extending `Error`. Core `Result<T, E>` stays
    **generic in `E`** (unconstrained); only the tag-aware utilities require
@@ -64,8 +68,10 @@ not flung up the stack. Only a true defect ever throws (at `unwrap`).
 is an awaitable wrapper (method parity with `Result`) typed as
 `Awaitable<Result<T, E>>` — a **success-only thenable**, not a full
 `PromiseLike` (its internal promise never rejects, so there is no rejection
-channel to model). Its callbacks may be async, and `await` collapses it to a
-`Result`.
+channel to model). Its **combinator callbacks are synchronous** (no raw
+`Promise` — see Thesis #3); async work re-enters via `fromPromise` /
+`fromSafePromise` and composes with `flatMap`. `await` collapses an
+`AsyncResult` to a `Result`.
 
 - success: `map`, `flatMap`, `tap`, `as`
 - error: `mapErr`, `orElse`, `recover`, `tapErr`

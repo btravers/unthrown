@@ -221,12 +221,12 @@ export class AsyncRes<T, E> implements AsyncResult<T, E> {
     return this.promise.then(onfulfilled, onrejected);
   }
 
-  map<U>(f: (value: T) => U | Promise<U>): AsyncResult<U, E> {
+  map<U>(f: (value: T) => U): AsyncResult<U, E> {
     return new AsyncRes<U, E>(
-      this.promise.then(async (r) => {
+      this.promise.then((r) => {
         if (r._state.tag !== "ok") return r as unknown as Res<U, E>;
         try {
-          return new Res<U, E>({ tag: "ok", value: await f(r._state.value) });
+          return new Res<U, E>({ tag: "ok", value: f(r._state.value) });
         } catch (cause) {
           return new Res<U, E>({ tag: "defect", cause });
         }
@@ -234,9 +234,7 @@ export class AsyncRes<T, E> implements AsyncResult<T, E> {
     );
   }
 
-  flatMap<U, E2>(
-    f: (value: T) => Result<U, E2> | AsyncResult<U, E2> | Promise<Result<U, E2>>,
-  ): AsyncResult<U, E | E2> {
+  flatMap<U, E2>(f: (value: T) => Result<U, E2> | AsyncResult<U, E2>): AsyncResult<U, E | E2> {
     return new AsyncRes<U, E | E2>(
       this.promise.then(async (r) => {
         if (r._state.tag !== "ok") return r as unknown as Res<U, E | E2>;
@@ -249,12 +247,12 @@ export class AsyncRes<T, E> implements AsyncResult<T, E> {
     );
   }
 
-  tap(f: (value: T) => void | Promise<void>): AsyncResult<T, E> {
+  tap(f: (value: T) => void): AsyncResult<T, E> {
     return new AsyncRes<T, E>(
-      this.promise.then(async (r) => {
+      this.promise.then((r) => {
         if (r._state.tag !== "ok") return r;
         try {
-          await f(r._state.value);
+          f(r._state.value);
           return r;
         } catch (cause) {
           return new Res<T, E>({ tag: "defect", cause });
@@ -271,12 +269,12 @@ export class AsyncRes<T, E> implements AsyncResult<T, E> {
     );
   }
 
-  mapErr<E2>(f: (error: E) => E2 | Promise<E2>): AsyncResult<T, E2> {
+  mapErr<E2>(f: (error: E) => E2): AsyncResult<T, E2> {
     return new AsyncRes<T, E2>(
-      this.promise.then(async (r) => {
+      this.promise.then((r) => {
         if (r._state.tag !== "err") return r as unknown as Res<T, E2>;
         try {
-          return new Res<T, E2>({ tag: "err", error: await f(r._state.error) });
+          return new Res<T, E2>({ tag: "err", error: f(r._state.error) });
         } catch (cause) {
           return new Res<T, E2>({ tag: "defect", cause });
         }
@@ -284,9 +282,7 @@ export class AsyncRes<T, E> implements AsyncResult<T, E> {
     );
   }
 
-  orElse<U, E2>(
-    f: (error: E) => Result<U, E2> | AsyncResult<U, E2> | Promise<Result<U, E2>>,
-  ): AsyncResult<T | U, E2> {
+  orElse<U, E2>(f: (error: E) => Result<U, E2> | AsyncResult<U, E2>): AsyncResult<T | U, E2> {
     return new AsyncRes<T | U, E2>(
       this.promise.then(async (r) => {
         if (r._state.tag !== "err") return r as unknown as Res<T | U, E2>;
@@ -299,15 +295,12 @@ export class AsyncRes<T, E> implements AsyncResult<T, E> {
     );
   }
 
-  recover<U>(f: (error: E) => U | Promise<U>): AsyncResult<T | U, never> {
+  recover<U>(f: (error: E) => U): AsyncResult<T | U, never> {
     return new AsyncRes<T | U, never>(
-      this.promise.then(async (r) => {
+      this.promise.then((r) => {
         if (r._state.tag !== "err") return r as unknown as Res<T | U, never>;
         try {
-          return new Res<T | U, never>({
-            tag: "ok",
-            value: await f(r._state.error),
-          });
+          return new Res<T | U, never>({ tag: "ok", value: f(r._state.error) });
         } catch (cause) {
           return new Res<T | U, never>({ tag: "defect", cause });
         }
@@ -315,12 +308,12 @@ export class AsyncRes<T, E> implements AsyncResult<T, E> {
     );
   }
 
-  tapErr(f: (error: E) => void | Promise<void>): AsyncResult<T, E> {
+  tapErr(f: (error: E) => void): AsyncResult<T, E> {
     return new AsyncRes<T, E>(
-      this.promise.then(async (r) => {
+      this.promise.then((r) => {
         if (r._state.tag !== "err") return r;
         try {
-          await f(r._state.error);
+          f(r._state.error);
           return r;
         } catch (cause) {
           return new Res<T, E>({ tag: "defect", cause });
@@ -330,7 +323,7 @@ export class AsyncRes<T, E> implements AsyncResult<T, E> {
   }
 
   recoverDefect<U, E2>(
-    f: (cause: unknown) => Result<U, E2> | AsyncResult<U, E2> | Promise<Result<U, E2>>,
+    f: (cause: unknown) => Result<U, E2> | AsyncResult<U, E2>,
   ): AsyncResult<T | U, E | E2> {
     return new AsyncRes<T | U, E | E2>(
       this.promise.then(async (r) => {
@@ -344,12 +337,12 @@ export class AsyncRes<T, E> implements AsyncResult<T, E> {
     );
   }
 
-  tapDefect(f: (cause: unknown) => void | Promise<void>): AsyncResult<T, E> {
+  tapDefect(f: (cause: unknown) => void): AsyncResult<T, E> {
     return new AsyncRes<T, E>(
-      this.promise.then(async (r) => {
+      this.promise.then((r) => {
         if (r._state.tag !== "defect") return r;
         try {
-          await f(r._state.cause);
+          f(r._state.cause);
           return r;
         } catch (cause) {
           return new Res<T, E>({ tag: "defect", cause });
@@ -359,11 +352,11 @@ export class AsyncRes<T, E> implements AsyncResult<T, E> {
   }
 
   match<R>(cases: {
-    ok: (value: T) => R | Promise<R>;
-    err: (error: E) => R | Promise<R>;
-    defect: (cause: unknown) => R | Promise<R>;
+    ok: (value: T) => R;
+    err: (error: E) => R;
+    defect: (cause: unknown) => R;
   }): Promise<R> {
-    return this.promise.then((r) => r.match(cases)) as Promise<R>;
+    return this.promise.then((r) => r.match(cases));
   }
 
   unwrap(): Promise<T> {
@@ -375,8 +368,8 @@ export class AsyncRes<T, E> implements AsyncResult<T, E> {
   unwrapOr(fallback: T): Promise<T> {
     return this.promise.then((r) => r.unwrapOr(fallback));
   }
-  unwrapOrElse(f: (error: E) => T | Promise<T>): Promise<T> {
-    return this.promise.then(async (r) => {
+  unwrapOrElse(f: (error: E) => T): Promise<T> {
+    return this.promise.then((r) => {
       const s = r._state;
       if (s.tag === "ok") return s.value;
       if (s.tag === "defect") throw s.cause;

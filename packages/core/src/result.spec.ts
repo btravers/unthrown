@@ -44,8 +44,15 @@ describe("AsyncResult is awaitable", () => {
     expect(result.unwrap()).toBe(7);
   });
 
-  it("await still yields a Result after async combinators", async () => {
+  it("await still yields a Result after a sync combinator", async () => {
     const result = await fromSafePromise(Promise.resolve(1)).map((n) => n + 1);
     expect(result.unwrap()).toBe(2);
+  });
+
+  it("composes further async work via flatMap into a qualified boundary", async () => {
+    const result = await fromSafePromise(Promise.resolve(2)).flatMap((n) =>
+      fromSafePromise(Promise.resolve(n * 10)),
+    );
+    expect(result.unwrap()).toBe(20);
   });
 });

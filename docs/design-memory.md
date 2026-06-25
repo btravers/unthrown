@@ -133,14 +133,31 @@ remain primary. A single-class redesign (static builders, `#private` state) was
 considered and rejected: it loses builder tree-shaking, forces `all`/the async
 bridge into statics, and still needs a separate `AsyncResult` class.
 
+### 2.9 No raw `Promise` in `AsyncResult` combinators (revised)
+
+`AsyncResult` methods originally accepted async callbacks (`map(f: (v) => U |
+Promise<U>)`, `flatMap(f: (v) => … | Promise<Result>)`, etc.). That quietly
+opened a **second, un-qualified async boundary**: a `Promise` returned from a
+combinator could reject, and the rejection became a defect — with no `qualify`
+triage, defeating Thesis #3 (qualification at every boundary). **Removed every
+raw `Promise` from `AsyncResult` callbacks**: combinator callbacks are now
+synchronous, and the binds (`flatMap`/`orElse`/`recoverDefect`) accept only
+`Result | AsyncResult`. The single sanctioned way a `Promise` enters the Result
+world is the interop layer (`fromPromise` with `qualify`, or `fromSafePromise` =
+all-defect). Async composition is `flatMap(v => fromPromise(work(v), qualify))` —
+more verbose than `map(async …)`, but that verbosity _is_ the forced triage. The
+implementation mirror: sync-callback methods dropped their `async`/`await`; the
+binds keep `await` only to collapse a returned `AsyncResult` to a `Result`.
+
 ---
 
 ## 3. Method surface
 
 `Result<T, E>` and `AsyncResult<T, E>` share one surface. `AsyncResult` is an
 awaitable wrapper with method parity, typed `Awaitable<Result<T,E>>` (a
-success-only thenable, not a full `PromiseLike` — see 2.4); callbacks may be
-async; `await` collapses it to a `Result`.
+success-only thenable, not a full `PromiseLike` — see 2.4); its combinator
+callbacks are synchronous (no raw `Promise` — see 2.9); `await` collapses it to a
+`Result`.
 
 - success: `map`, `flatMap`, `tap`, `as`
 - error: `mapErr`, `orElse`, `recover`, `tapErr`
