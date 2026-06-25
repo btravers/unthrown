@@ -10,15 +10,15 @@
     "typescript",
     "unthrown"
   ],
-  "homepage": "https://github.com/btravers/unthrown#readme",
+  "homepage": "https://github.com/btravstack/unthrown#readme",
   "bugs": {
-    "url": "https://github.com/btravers/unthrown/issues"
+    "url": "https://github.com/btravstack/unthrown/issues"
   },
   "license": "MIT",
   "author": "Benoit TRAVERS <benoit.travers.fr@gmail.com>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/btravers/unthrown.git",
+    "url": "https://github.com/btravstack/unthrown.git",
     "directory": "packages/pattern"
   },
   "files": [
