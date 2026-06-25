@@ -11,12 +11,9 @@ error handling with context, runtime, etc. `unthrown` does one thing.
 The name states the concern: ordinary errors are _unthrown_ — returned as values,
 not flung up the stack. Only a true defect ever throws (at `unwrap`).
 
-> **Design rationale: [`docs/design-memory.md`](docs/design-memory.md).** This
-> file is the _rules_; that file is the _reasoning_ — the why behind every
-> decision below, plus the alternatives that were considered and rejected. Read
-> it before changing anything in the Thesis, invariants, or surface sections, and
-> keep both files in sync as the code evolves (describe what _is_, not what was
-> planned).
+This file is the authoritative spec — the rules _and_ the reasoning behind them.
+Keep it in sync with the code as the library evolves (describe what _is_, not what
+was planned).
 
 ## Thesis (do not drift from these)
 
@@ -96,15 +93,44 @@ addition; revisit only if sequential code demands it), accumulation/`Validation`
 and aliases (`andThen`, etc. — one name per concept). Keep the surface small
 enough that the library can be "done".
 
+## Internal design (don't break the encapsulation)
+
+- **`Result` / `AsyncResult` are types; `Res` / `AsyncRes` are the classes that
+  implement them.** The classes live in `core.ts` and are **never re-exported
+  from `index.ts`**. `Res._state` (the `ok | err | defect` discriminated union)
+  is public-at-runtime so module-mates (`AsyncRes`, `all`) can branch on it, but
+  it is **absent from the `Result` type** — which is what keeps the third state
+  invisible and forces users through guards. A single public class can't hide its
+  own field; the type/class split is load-bearing. Do not export `Res`/`AsyncRes`
+  or move `_state` onto the public type.
+- **Builders are free functions** (`ok`, `err`, …) because they tree-shake — and
+  there is a `bundle-size` CI gate that protects this. The `Result` companion
+  object is additive sugar (value + type share the name via a re-alias in
+  `facade.ts`); it must stay a separate export so `import { ok }` never pulls it
+  in.
+- **`AsyncResult` is `Awaitable<Result<T,E>>`, not `PromiseLike`.** Its `then`
+  stays a runtime thenable (so `await` collapses it) and forwards `onrejected`
+  defensively, but the type advertises no rejection channel — because the internal
+  promise never rejects.
+- **Source layout** (`packages/core/src/`): `types.ts` (public types), `defect.ts`
+  (the `Defect` marker), `core.ts` (the `Res`/`AsyncRes` engine + `UnwrapError`),
+  `constructors.ts` (`ok`/`err` + guards), `interop.ts` (`from*`/`qualify`/`all`),
+  `facade.ts` (the `Result` object), `tagged.ts` (`TaggedError`/`matchTags`), and
+  `index.ts` (the curated public re-exports — the one place the API is decided).
+
 ## Monorepo layout
 
 - `packages/core` → `unthrown` (zero runtime dependencies)
 - `packages/pattern` → `@unthrown/pattern` (peerDep `ts-pattern`)
 - `packages/vitest` → `@unthrown/vitest` (peerDep `vitest`)
+- `tools/tsconfig`, `tools/typedoc` → private shared config (`@unthrown/tsconfig`,
+  `@unthrown/typedoc`)
+- `docs` → `@unthrown/docs`, the VitePress site (guide + TypeDoc-generated API
+  reference); deployed to GitHub Pages by `deploy-docs.yml`
 
 Never pull `ts-pattern` or `vitest` into core.
 
-## Roadmap (suggested order)
+## Status (all four roadmap items shipped)
 
 1. ✅ **Scaffold the workspace.** Done — pnpm + turbo workspace, dual CJS/ESM
    tsdown build, strict shared tsconfig, oxlint/oxfmt, knip, changesets, CI. The
@@ -127,9 +153,29 @@ Never pull `ts-pattern` or `vitest` into core.
    discriminated union. Kept small — the power is ts-pattern's; `matchTags`
    covers the everyday exhaustive case.
 
-## Conventions
+Also shipped: a root `README` + `LICENSE`, per-package READMEs, and the VitePress
+docs site (guide + generated API reference). **Remaining work is manual** and
+cannot be automated from here: publish `unthrown` + the `@unthrown` scope to npm,
+create the `RELEASE_PAT` secret, and configure npm Trusted Publishers for the
+changesets `release.yml` (plus enabling GitHub Pages for `deploy-docs.yml`).
 
-- TypeScript `strict`; target modern ES; ESM-first with type exports.
-- Tests: Vitest. Every load-bearing invariant above gets an explicit test.
+## Toolchain & conventions
+
+- **Stack:** pnpm (catalog) + turbo; build with **tsdown** (dual CJS/ESM + d.ts);
+  lint/format with **oxlint** / **oxfmt**; **knip** for dead-code/deps; **vitest**
+  (+ v8 coverage); **typedoc** (markdown) feeding **vitepress**; **changesets**
+  for releases; **lefthook** + **commitlint** (conventional commits) on commit.
+- **Gate (all must stay green):** `pnpm format --check`, `pnpm lint`,
+  `pnpm typecheck`, `pnpm knip`, `pnpm test`, `pnpm build`. CI mirrors these.
+- TypeScript `strict` + `exactOptionalPropertyTypes` + `noUncheckedIndexedAccess`;
+  ESM-first; `moduleResolution: NodeNext` (relative imports use `.js`).
+- **oxlint rules are binding:** no `interface` (use `type`), no `any` (use
+  `unknown`). Genuine exceptions (e.g. the `vitest` `Matchers` augmentation, the
+  `AsyncRes.then` thenable) carry a targeted `oxlint-disable` with a reason.
+- Tests: Vitest. Every load-bearing invariant above gets an explicit test
+  (`invariants.spec.ts` guards them 1:1); core holds 100% line/function coverage,
+  enforced by thresholds in its `vitest.config.ts`.
+- Public API carries full **TSDoc**; `pnpm --filter <pkg> build:docs` must stay
+  typedoc-warning-free.
 - One concept = one name. Resist convenience aliases.
 - The core has **no runtime dependencies**. This is a feature; protect it.

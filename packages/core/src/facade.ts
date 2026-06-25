@@ -2,7 +2,7 @@
 // points. The free functions remain the primary, tree-shakeable API; this
 // object is a separate export, so `import { ok }` never pulls it in. The value
 // `Result` and the type `Result<T, E>` (types.ts) share a name — the
-// companion-object pattern. See design-memory §2.8.
+// companion-object pattern. See CLAUDE.md → "Internal design".
 
 import { err, isDefect, isErr, isOk, ok } from "./constructors.js";
 import { defect } from "./defect.js";

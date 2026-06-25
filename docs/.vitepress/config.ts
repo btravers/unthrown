@@ -19,9 +19,6 @@ export default defineConfig({
     hostname: "https://btravers.github.io/unthrown/",
   },
 
-  // Exclude internal design docs from the published site.
-  srcExclude: ["design-memory.md", "superpowers/**", "README.md"],
-
   themeConfig: {
     nav: [
       { text: "Guide", link: "/guide/why-unthrown" },

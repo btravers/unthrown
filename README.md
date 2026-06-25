@@ -46,7 +46,7 @@ pnpm add unthrown
 ## Example
 
 ```ts
-import { ok, err, fromPromise, defect, TaggedError, type Result } from "unthrown";
+import { fromPromise, defect, TaggedError } from "unthrown";
 
 class NotFound extends TaggedError("NotFound") {}
 

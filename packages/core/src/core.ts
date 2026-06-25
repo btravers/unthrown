@@ -5,7 +5,8 @@
 // `Res._state` is public-at-runtime so module-mates (AsyncRes, aggregation) can
 // branch on it, but it is ABSENT from the `Result` type — so user code never
 // sees it. This module must never be re-exported from `index.ts`; that is what
-// keeps the representation (and the third state) hidden. See design-memory §2.8.
+// keeps the representation (and the third state) hidden. See CLAUDE.md →
+// "Internal design".
 
 import type { AsyncResult, Result } from "./types.js";
 
