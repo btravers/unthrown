@@ -129,6 +129,9 @@ importers:
       '@unthrown/typedoc':
         specifier: workspace:*
         version: link:../../tools/typedoc
+      '@vitest/coverage-v8':
+        specifier: 'catalog:'
+        version: 4.1.8(vitest@4.1.8)
       ts-pattern:
         specifier: 'catalog:'
         version: 5.9.0
@@ -144,6 +147,9 @@ importers:
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.8(@types/node@24.13.2)(@vitest/coverage-v8@4.1.8)(jiti@2.7.0)(yaml@2.9.0)
 
   packages/vitest:
     dependencies:

@@ -121,9 +121,11 @@ Never pull `ts-pattern` or `vitest` into core.
    augmenting Vitest's `Matchers` interface. They detect a thenable `AsyncResult`
    and await internally, so a test reads `await expect(asyncResult).toBeOk()`
    (the required `await` is documented loudly — a forgotten one passes silently).
-4. **`packages/pattern`** — thin `ts-pattern` integration: a `P.tag(tag)` sugar
-   and an adapter exposing the ok/err/defect channels. Keep it small — the power
-   is ts-pattern's, `matchTags` covers the everyday exhaustive case.
+4. ✅ **`packages/pattern`** — Done. Thin `ts-pattern` integration: `tag(t)`
+   sugar (the `{ _tag: t }` pattern, narrowing to the variant + payload) and
+   `toMatchable(result)` exposing the ok/err/defect channels as a `_kind`
+   discriminated union. Kept small — the power is ts-pattern's; `matchTags`
+   covers the everyday exhaustive case.
 
 ## Conventions
 

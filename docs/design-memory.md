@@ -281,7 +281,8 @@ util packages depend on the scope existing and names get sniped.
    `matchTags`, fully tested and TSDoc'd.
 3. ✅ **`packages/vitest`** — done. The matchers above (`expect.extend` +
    `Matchers` augmentation), thenable-aware, fully tested.
-4. **`packages/pattern`** — the thin ts-pattern layer.
+4. ✅ **`packages/pattern`** — done. `tag(t)` sugar + `toMatchable(result)`
+   channel adapter; the thin ts-pattern layer, fully tested.
 
 Throughout: Vitest, one concept = one name, core stays dependency-free, and every
 invariant in §4 gets an explicit test (seed them from the 13 smoke checks).
