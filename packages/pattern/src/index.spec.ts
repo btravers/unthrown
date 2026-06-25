@@ -55,7 +55,10 @@ describe("pattern constructors", () => {
     expect(P.ok()).toEqual({ tag: "Ok" });
     expect(P.err()).toEqual({ tag: "Err" });
     expect(P.defect()).toEqual({ tag: "Defect" });
+    // with a sub-pattern argument on each channel
     expect(P.ok(1)).toEqual({ tag: "Ok", value: 1 });
+    expect(P.err("boom")).toEqual({ tag: "Err", error: "boom" });
+    expect(P.defect("cause")).toEqual({ tag: "Defect", cause: "cause" });
     expect(P.tag("X")).toEqual({ _tag: "X" });
   });
 });

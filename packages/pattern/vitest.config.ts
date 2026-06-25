@@ -7,6 +7,13 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       include: ["src/**"],
+      // The pattern sugar is fully covered — keep it that way.
+      thresholds: {
+        statements: 100,
+        branches: 100,
+        functions: 100,
+        lines: 100,
+      },
     },
   },
 });
