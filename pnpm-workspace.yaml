@@ -37,3 +37,12 @@ peerDependencyRules:
 allowBuilds:
   esbuild: true
   lefthook: true
+
+auditConfig:
+  ignoreGhsas:
+    # vite `server.fs.deny` bypass on Windows alternate paths. Reaches us only
+    # through the docs site's dev tooling (docs > vitepress > vite) — a build-time,
+    # docs-only transitive dep. It affects the Vite dev server on Windows, which we
+    # never run in CI or production (the docs site ships as static HTML), and it is
+    # in no published package's runtime dependencies.
+    - GHSA-fx2h-pf6j-xcff
