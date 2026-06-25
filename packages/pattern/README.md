@@ -27,8 +27,9 @@ match(result)
 ```
 
 - `P.ok(sub?)` / `P.err(sub?)` / `P.defect(sub?)` — match a channel; pass a
-  sub-pattern (a literal, `P.string`, `P.select()`, …) to constrain or select the
-  payload. (Or skip the sugar and match `{ tag: "Ok", … }` directly.)
+  sub-pattern to constrain or select the payload: a literal, or any `ts-pattern`
+  pattern (e.g. `ts-pattern`'s own `P.string` / `P.select()`, imported from
+  `ts-pattern`). (Or skip the sugar and match `{ tag: "Ok", … }` directly.)
 - `P.tag(t)` — sugar for `{ _tag: t }`; nested in `P.err(...)` it narrows to the
   matching `TaggedError` variant, including its payload.
 

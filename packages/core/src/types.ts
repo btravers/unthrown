@@ -122,7 +122,8 @@ export type ResultMethods<T, E> = {
    * Exactly one handler runs. Together with the throw-to-defect guarantee, this
    * is typically the single place a pipeline is handled at the edge — mapping
    * `ok`/`err`/`defect` to (for example) 2xx / 4xx / 5xx with no `try`/`catch`.
-   * (For richer matching, a `Result` is also a discriminated union — see `tag`.)
+   * (For richer matching, a `Result` is also a discriminated union — branch on
+   * its `tag` property, e.g. with `ts-pattern`.)
    *
    * @typeParam R - the folded result type.
    * @param cases - one handler per channel.

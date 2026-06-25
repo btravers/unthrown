@@ -60,10 +60,23 @@ const status = match(result)
 ```
 
 - `P.ok(sub?)` / `P.err(sub?)` / `P.defect(sub?)` — match a channel; pass a
-  sub-pattern (a literal, `P.string`, `P.select()`, …) to constrain or select
-  the payload.
+  sub-pattern to constrain or select the payload: a literal, or any `ts-pattern`
+  pattern.
 - `P.tag(t)` — sugar for `{ _tag: t }`; nested in `P.err(...)` it narrows to the
   matching tagged-error variant, payload and all.
+
+Above, `P` is `@unthrown/pattern`. To also use `ts-pattern`'s own patterns
+(wildcards, `P.select()`, `P.string`, …), import them from `ts-pattern` under a
+different name:
+
+```ts
+import { match, P as t } from "ts-pattern";
+import * as P from "@unthrown/pattern";
+
+match(result)
+  .with(P.ok(t.select()), (value) => value) // t.select() is ts-pattern's
+  .otherwise(() => 0);
+```
 
 `ts-pattern` is a peer dependency.
 

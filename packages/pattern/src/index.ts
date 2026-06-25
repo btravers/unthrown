@@ -15,11 +15,19 @@
 //     .with(P.err(), ({ error }) => `error: ${error}`)
 //     .with(P.defect(), ({ cause }) => `bug: ${String(cause)}`)
 //     .exhaustive();
+//
+// Here `P` is THIS package. To also use ts-pattern's own patterns (wildcards,
+// `P.select()`, `P.string`, …), import ts-pattern's `P` under another name:
+//
+//   import { match, P as t } from "ts-pattern";
+//   import * as P from "@unthrown/pattern";
+//   match(result).with(P.ok(t.select()), (value) => value).otherwise(() => …);
 
 /**
  * A `ts-pattern` pattern matching the `Ok` variant of a `Result`. With no
- * argument it matches any `Ok`; pass a sub-pattern (e.g. a literal, `P.string`,
- * or `P.select()`) to constrain or select the `value`.
+ * argument it matches any `Ok`; pass a sub-pattern to constrain or select the
+ * `value` — a literal, or any `ts-pattern` pattern (e.g. `ts-pattern`'s own
+ * `P.string` / `P.select()`, imported from `ts-pattern`, not this package).
  *
  * @typeParam V - the sub-pattern matched against the `Ok` value.
  */
