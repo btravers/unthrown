@@ -49,10 +49,14 @@ test("matchers", () => {
 ```
 
 `toBeErrTagged` takes an optional second argument to also assert the tagged
-error's payload (its own fields, minus `_tag`). A plain object matches it
-**exactly**; an asymmetric matcher matches it **partially**:
+error's payload — its own fields, minus the `_tag` and `name` that `TaggedError`
+sets. A plain object matches it **exactly**; an asymmetric matcher matches it
+**partially**:
 
 ```ts
+import { err, TaggedError } from "unthrown";
+import { expect } from "vitest";
+
 class NotFound extends TaggedError("NotFound")<{ id: number; msg: string }> {}
 
 // exact — every payload field must match

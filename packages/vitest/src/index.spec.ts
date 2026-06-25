@@ -54,7 +54,7 @@ describe("toBeErr / toBeErrTagged", () => {
     expect(r).toBeErrTagged("Multi", expect.objectContaining({ id: 1 }));
     expect(r).toBeErrTagged("Multi", { id: 1, msg: "boom" });
     expect(r).not.toBeErrTagged("Multi", expect.objectContaining({ id: 2 }));
-    // right tag, wrong payload → fails even though the tag matches
+    // wrong tag → fails even when the payload sub-pattern would match
     expect(r).not.toBeErrTagged("Other", expect.objectContaining({ id: 1 }));
   });
 
