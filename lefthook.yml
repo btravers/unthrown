@@ -10,7 +10,11 @@ pre-commit:
       # Mirror oxfmt's `ignorePatterns` (generated docs/api + vitepress output):
       # handing oxfmt ONLY ignored files makes it exit non-zero, which would fail
       # a commit touching only those. Excluding them here skips the step instead.
-      exclude: "{pnpm-lock.yaml,docs/api/*,docs/.vitepress/cache/*,docs/.vitepress/dist/*}"
+      exclude:
+        - "pnpm-lock.yaml"
+        - "docs/api/*"
+        - "docs/.vitepress/cache/*"
+        - "docs/.vitepress/dist/*"
       run: pnpm oxfmt {staged_files}
       stage_fixed: true
     lint:
