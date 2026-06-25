@@ -87,3 +87,40 @@ describe("non-Result input", () => {
     expect({}).not.toBeErr();
   });
 });
+
+describe("failure messages", () => {
+  // A failing positive assertion renders the actual result it received.
+  it("renders the actual Ok / Err / Defect in the 'but got …' message", () => {
+    expect(() => expect(ok(1)).toBeErr()).toThrowError(/to be Err, but got Ok\(1\)/);
+    expect(() => expect(err("e")).toBeOk()).toThrowError(/to be Ok, but got Err\("e"\)/);
+    expect(() => expect(aDefect).toBeOk()).toThrowError(/to be Ok, but got Defect\(/);
+  });
+
+  it("reports the expected value/tag on the other matchers", () => {
+    expect(() => expect(ok(1)).toBeOkWith(2)).toThrowError(/to be Ok\(2\), but got Ok\(1\)/);
+    expect(() => expect(ok(1)).toBeErrTagged("Nope")).toThrowError(
+      /to be Err tagged "Nope", but got Ok\(1\)/,
+    );
+    expect(() =>
+      expect(err(new MyError({ code: 1 }))).toBeErrTagged("MyError", { code: 2 }),
+    ).toThrowError(/to be Err tagged "MyError" matching/);
+    expect(() => expect(ok(1)).toBeDefect()).toThrowError(/to be a Defect, but got Ok\(1\)/);
+  });
+
+  it("reports a clear message for a non-Result value", () => {
+    expect(() => expect(42).toBeOk()).toThrowError(/expected an unthrown Result, but received 42/);
+  });
+
+  // A failing negated assertion renders the inverse ('not to be …') message.
+  it("renders the inverse message when a negated assertion fails", () => {
+    expect(() => expect(ok(1)).not.toBeOk()).toThrowError(/not to be Ok, but it was Ok\(1\)/);
+    expect(() => expect(ok(1)).not.toBeOkWith(1)).toThrowError(/not to be Ok\(1\)/);
+    expect(() => expect(err("e")).not.toBeErr()).toThrowError(
+      /not to be Err, but it was Err\("e"\)/,
+    );
+    expect(() => expect(err(new MyError({ code: 1 }))).not.toBeErrTagged("MyError")).toThrowError(
+      /not to be Err tagged "MyError"/,
+    );
+    expect(() => expect(aDefect).not.toBeDefect()).toThrowError(/not to be a Defect/);
+  });
+});
