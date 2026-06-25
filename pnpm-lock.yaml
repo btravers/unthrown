@@ -33,6 +33,9 @@ catalogs:
     oxlint:
       specifier: 1.69.0
       version: 1.69.0
+    ts-pattern:
+      specifier: 5.9.0
+      version: 5.9.0
     tsdown:
       specifier: 0.22.2
       version: 0.22.2
@@ -95,6 +98,68 @@ importers:
       '@vitest/coverage-v8':
         specifier: 'catalog:'
         version: 4.1.8(vitest@4.1.8)
+      tsdown:
+        specifier: 'catalog:'
+        version: 0.22.2(oxc-resolver@11.21.3)(typescript@6.0.3)
+      typedoc:
+        specifier: 'catalog:'
+        version: 0.28.19(typescript@6.0.3)
+      typedoc-plugin-markdown:
+        specifier: 'catalog:'
+        version: 4.12.0(typedoc@0.28.19(typescript@6.0.3))
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.8(@types/node@24.13.2)(@vitest/coverage-v8@4.1.8)(jiti@2.7.0)(yaml@2.9.0)
+
+  packages/pattern:
+    dependencies:
+      unthrown:
+        specifier: workspace:*
+        version: link:../core
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 24.13.2
+      '@unthrown/tsconfig':
+        specifier: workspace:*
+        version: link:../../tools/tsconfig
+      '@unthrown/typedoc':
+        specifier: workspace:*
+        version: link:../../tools/typedoc
+      ts-pattern:
+        specifier: 'catalog:'
+        version: 5.9.0
+      tsdown:
+        specifier: 'catalog:'
+        version: 0.22.2(oxc-resolver@11.21.3)(typescript@6.0.3)
+      typedoc:
+        specifier: 'catalog:'
+        version: 0.28.19(typescript@6.0.3)
+      typedoc-plugin-markdown:
+        specifier: 'catalog:'
+        version: 4.12.0(typedoc@0.28.19(typescript@6.0.3))
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+
+  packages/vitest:
+    dependencies:
+      unthrown:
+        specifier: workspace:*
+        version: link:../core
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 24.13.2
+      '@unthrown/tsconfig':
+        specifier: workspace:*
+        version: link:../../tools/tsconfig
+      '@unthrown/typedoc':
+        specifier: workspace:*
+        version: link:../../tools/typedoc
       tsdown:
         specifier: 'catalog:'
         version: 0.22.2(oxc-resolver@11.21.3)(typescript@6.0.3)
@@ -1955,6 +2020,9 @@ packages:
     resolution: {integrity: sha512-L0Orpi8qGpRG//Nd+H90vFB+3iHnue1zSSGmNOOCh1GLJ7rUKVwV2HvijphGQS2UmhUZewS9VgvxYIdgr+fG1A==}
     hasBin: true
 
+  ts-pattern@5.9.0:
+    resolution: {integrity: sha512-6s5V71mX8qBUmlgbrfL33xDUwO0fq48rxAu2LBE11WBeGdpCPOsXksQbZJHvHwhrd3QjUusd3mAOM5Gg0mFBLg==}
+
   tsdown@0.22.2:
     resolution: {integrity: sha512-VX9gsyKXsTnBZjnIM4jsHl9aRv+GfgkE/k1hQslilaBfZMlaw3JuGR+6yhiU0QxWBtOCDnTjwOSoXzgB7Rr50g==}
     engines: {node: ^22.18.0 || >=24.0.0}
@@ -3807,6 +3875,8 @@ snapshots:
       is-number: 7.0.0
 
   tree-kill@1.2.2: {}
+
+  ts-pattern@5.9.0: {}
 
   tsdown@0.22.2(oxc-resolver@11.21.3)(typescript@6.0.3):
     dependencies:
