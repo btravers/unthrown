@@ -28,11 +28,16 @@ was planned).
    nullable third-party APIs goes through `fromNullable`. Do not add `Option`.
 3. **Qualification is enforced at every boundary.** `fromPromise` / `fromThrowable`
    take a mandatory `qualify: (cause: unknown) => E | Defect`. There is no path
-   that produces `unknown` in `E`. The boundary forces a triage decision. This is
-   also why **`AsyncResult` combinator callbacks are synchronous** — a raw
-   `Promise` may never enter an `AsyncResult` method (its rejection would
-   silently become a defect, skipping the triage). Async work re-enters only
-   through `fromPromise` / `fromSafePromise` and composes via `flatMap`.
+   that produces `unknown` in `E`. The boundary forces a triage decision. The
+   modeled error type is inferred as **`Exclude<R, Defect>`** (where `R` is
+   `qualify`'s return type): the `Defect` arm is _subtracted_ from `E`, never
+   inferred into it — a defect-only `qualify` yields `E = never`, not
+   `E = Defect` (sound because `Defect` is `unique symbol`-branded, so no domain
+   error is assignable to it). This is also why **`AsyncResult` combinator
+   callbacks are synchronous** — a raw `Promise` may never enter an `AsyncResult`
+   method (its rejection would silently become a defect, skipping the triage).
+   Async work re-enters only through `fromPromise` / `fromSafePromise` and
+   composes via `flatMap`.
 4. **`TaggedError` is the error convention** (à la Effect's `Data.TaggedError`):
    a `_tag` discriminant on a class extending `Error`. Core `Result<T, E>` stays
    **generic in `E`** (unconstrained); only the tag-aware utilities require

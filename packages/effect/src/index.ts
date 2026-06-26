@@ -178,9 +178,9 @@ function resultToEffect<T, E>(result: Result<T, E>): Effect.Effect<T, E> {
 // unthrown; replaying it through the throwable boundary lands it in the `Defect`
 // state — the sanctioned (boundary-only) way to mint a defect `Result`.
 function dieToResult<T, E>(cause: unknown): Result<T, E> {
-  return fromThrowable<[], never, never>((): never => {
+  return fromThrowable((): never => {
     throw cause;
-  }, defect)();
+  }, defect)() as Result<T, E>;
 }
 
 function settle<T, E>(asyncResult: AsyncResult<T, E>): Promise<Result<T, E>> {

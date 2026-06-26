@@ -42,9 +42,15 @@ export function fromNullable<T, E>(
  * {@link Defect} (via {@link defect}) — there is no path that leaves `unknown`
  * in `E`. A throw inside `qualify` itself is treated as a `Defect`.
  *
+ * The modeled error type is `Exclude<R, Defect>` — the `Defect` arm of
+ * `qualify`'s return is **subtracted** from `E`, never inferred into it. So a
+ * `qualify` that returns *only* `defect(cause)` yields `E = never` (a defect is
+ * out-of-band and must not pollute the error channel); reach for
+ * {@link fromSafePromise} when every failure is a defect.
+ *
  * @typeParam A - the wrapped function's argument tuple.
  * @typeParam T - the wrapped function's return type.
- * @typeParam E - the modeled error type.
+ * @typeParam R - `qualify`'s return type (`E | Defect`); `E` is `Exclude<R, Defect>`.
  * @param fn - the throwing function to wrap.
  * @param qualify - triages a thrown cause into `E` or a `Defect`.
  * @returns a function with the same arguments returning `Result<T, E>`.
@@ -56,15 +62,17 @@ export function fromNullable<T, E>(
  * parse("{}").unwrap();
  * ```
  */
-export function fromThrowable<A extends unknown[], T, E>(
+export function fromThrowable<A extends unknown[], T, R>(
   fn: (...args: A) => T,
-  qualify: (cause: unknown) => E | Defect,
-): (...args: A) => Result<T, E> {
+  qualify: (cause: unknown) => R,
+): (...args: A) => Result<T, Exclude<R, Defect>> {
+  type E = Exclude<R, Defect>;
+  const triage = qualify as (cause: unknown) => E | Defect;
   return (...args: A): Result<T, E> => {
     try {
       return ok(fn(...args)) as Result<T, E>;
     } catch (cause) {
-      return qualifyToResult<T, E>(cause, qualify);
+      return qualifyToResult<T, E>(cause, triage);
     }
   };
 }
@@ -79,8 +87,13 @@ export function fromThrowable<A extends unknown[], T, E>(
  * `await`-ing it always yields a `Result`. A throw inside `qualify` is itself a
  * `Defect`.
  *
+ * The modeled error type is `Exclude<R, Defect>` — the `Defect` arm of
+ * `qualify`'s return is **subtracted** from `E`, never inferred into it. So a
+ * `qualify` that returns *only* `defect(cause)` yields `E = never`; when every
+ * rejection is a defect, prefer {@link fromSafePromise}.
+ *
  * @typeParam T - the resolved value type.
- * @typeParam E - the modeled error type.
+ * @typeParam R - `qualify`'s return type (`E | Defect`); `E` is `Exclude<R, Defect>`.
  * @param promise - the promise, or a thunk returning one.
  * @param qualify - triages a rejection cause into `E` or a `Defect`.
  *
@@ -92,14 +105,16 @@ export function fromThrowable<A extends unknown[], T, E>(
  * );
  * ```
  */
-export function fromPromise<T, E>(
+export function fromPromise<T, R>(
   promise: Promise<T> | (() => Promise<T>),
-  qualify: (cause: unknown) => E | Defect,
-): AsyncResult<T, E> {
+  qualify: (cause: unknown) => R,
+): AsyncResult<T, Exclude<R, Defect>> {
+  type E = Exclude<R, Defect>;
+  const triage = qualify as (cause: unknown) => E | Defect;
   const p = typeof promise === "function" ? Promise.resolve().then(promise) : promise;
   const settled: Promise<Result<T, E>> = p.then(
     (value) => okRes<T, E>(value),
-    (cause) => qualifyToResult<T, E>(cause, qualify),
+    (cause) => qualifyToResult<T, E>(cause, triage),
   );
   return new AsyncRes<T, E>(settled);
 }
