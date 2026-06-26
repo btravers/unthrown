@@ -2,7 +2,16 @@
   "$schema": "https://unpkg.com/@changesets/config@3.0.3/schema.json",
   "changelog": "@changesets/cli/changelog",
   "commit": false,
-  "fixed": [["unthrown", "@unthrown/pattern", "@unthrown/vitest"]],
+  "fixed": [
+    [
+      "unthrown",
+      "@unthrown/pattern",
+      "@unthrown/vitest",
+      "@unthrown/effect",
+      "@unthrown/neverthrow",
+      "@unthrown/boxed"
+    ]
+  ],
   "linked": [],
   "access": "public",
   "baseBranch": "main",

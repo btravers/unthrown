@@ -138,12 +138,36 @@ enough that the library can be "done".
 - `packages/core` → `unthrown` (zero runtime dependencies)
 - `packages/pattern` → `@unthrown/pattern` (peerDep `ts-pattern`)
 - `packages/vitest` → `@unthrown/vitest` (peerDep `vitest`)
+- `packages/effect` → `@unthrown/effect` (peerDep `effect`)
+- `packages/neverthrow` → `@unthrown/neverthrow` (peerDep `neverthrow`)
+- `packages/boxed` → `@unthrown/boxed` (peerDep `@bloodyowl/boxed` — Boxed's
+  maintained scope; `@swan-io/boxed` is the deprecated former name)
 - `tools/tsconfig`, `tools/typedoc` → private shared config (`@unthrown/tsconfig`,
   `@unthrown/typedoc`)
 - `docs` → `@unthrown/docs`, the VitePress site (guide + TypeDoc-generated API
   reference); deployed to GitHub Pages by `deploy-docs.yml`
 
-Never pull `ts-pattern` or `vitest` into core.
+Never pull `ts-pattern`, `vitest`, or any interop peer (`effect`, `neverthrow`,
+`@bloodyowl/boxed`) into core.
+
+### Interop packages (`packages/effect`, `packages/neverthrow`, `packages/boxed`)
+
+Thin `to*`/`from*` bridges between `Result`/`AsyncResult` and a neighbour's
+types. One rule decides their shape: **does the neighbour have a defect
+channel?**
+
+- **Effect does** (`Cause.die`), so `Result ↔ Exit` is a genuine **bijection**
+  (`Ok↔succeed`, `Err↔Cause.fail`, `Defect↔Cause.die`). `fromExit` lets a
+  `Defect` **dominate** a modeled failure in a composite cause (same rule as
+  `all`). `toEither` has no defect target, so it takes a mandatory `onDefect`.
+- **neverthrow and Boxed do not.** Coming _in_, results are only `Ok`/`Err` —
+  never a `Defect`. Going _out_, every `to*` takes a **mandatory `onDefect:
+(cause) => E`** (forced triage, Thesis #3): a defect is never silently folded
+  into `E`. There is no one-arg form.
+- A `Defect` `Result` has no public constructor (defects arise at boundaries).
+  The only place one is minted is `@unthrown/effect`'s `fromExit`, which replays
+  Effect's `die` cause through the `fromThrowable` boundary — itself a genuine
+  un-triaged-failure boundary.
 
 ## Status (all four roadmap items shipped)
 

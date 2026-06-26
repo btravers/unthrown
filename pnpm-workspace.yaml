@@ -12,11 +12,14 @@ packages:
 catalog:
   "@changesets/cli": 2.31.0
   "@commitlint/cli": 21.0.2
+  "@bloodyowl/boxed": 3.4.0
   "@commitlint/config-conventional": 21.0.2
   "@types/node": 24.13.2
   "@vitest/coverage-v8": 4.1.8
+  effect: 3.21.4
   knip: 6.16.1
   lefthook: 2.1.9
+  neverthrow: 8.2.0
   oxfmt: 0.54.0
   oxlint: 1.69.0
   ts-pattern: 5.9.0
