@@ -56,6 +56,12 @@ The boxed/neverthrow "original sin" is `fromPromise(p): AsyncResult<T, unknown>`
 `qualify` is mandatory, so **there is no code path that yields `unknown` in
 `E`**.
 
+The error channel is inferred as `Exclude<R, Defect>` — the `Defect` arm of
+`qualify`'s return is **subtracted**, never inferred into `E`. So a `qualify`
+that returns _only_ `defect(cause)` gives `AsyncResult<T, never>`, not
+`AsyncResult<T, Defect>` — a defect stays out-of-band. (When _every_ rejection is
+a defect, reach for `fromSafePromise` below.)
+
 ## `fromSafePromise` — when any rejection is a bug
 
 If a promise should never fail in a _modeled_ way — its rejection would be a bug,

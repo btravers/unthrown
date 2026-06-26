@@ -1,6 +1,14 @@
 import { describe, expect, it } from "vitest";
 
-import { defect, fromNullable, fromThrowable, ok } from "./index.js";
+import {
+  type AsyncResult,
+  defect,
+  fromNullable,
+  fromPromise,
+  fromThrowable,
+  ok,
+  type Result,
+} from "./index.js";
 
 const boom = new Error("boom");
 
@@ -59,5 +67,41 @@ describe("fromThrowable", () => {
       },
     );
     expect(fn().isDefect()).toBe(true);
+  });
+
+  it("subtracts Defect from the error channel: a defect-only qualify yields E = never", () => {
+    const fn = fromThrowable(
+      (): number => 1,
+      (c) => defect(c),
+    );
+    // Compiles only if `E` is `never` — `Defect` must not leak into the channel.
+    const r: Result<number, never> = fn();
+    expect(r.unwrap()).toBe(1);
+  });
+
+  it("keeps the modeled arm while subtracting Defect: mixed qualify yields just E", () => {
+    const fn = fromThrowable(
+      (): number => 1,
+      (c) => (c === boom ? ("known" as const) : defect(c)),
+    );
+    const r: Result<number, "known"> = fn();
+    expect(r.unwrap()).toBe(1);
+  });
+});
+
+describe("fromPromise — error-channel inference", () => {
+  it("a defect-only qualify yields AsyncResult<T, never>", async () => {
+    const ar = fromPromise(Promise.reject(boom), (c) => defect(c));
+    const typed: AsyncResult<never, never> = ar;
+    expect((await typed).isDefect()).toBe(true);
+  });
+
+  it("a mixed qualify keeps only the modeled arm in E", async () => {
+    const ar = fromPromise(Promise.reject(boom), (c) =>
+      c === boom ? ("known" as const) : defect(c),
+    );
+    const typed: AsyncResult<never, "known"> = ar;
+    // `boom` matches the modeled arm, so it lands in Err — not a Defect.
+    expect((await typed).unwrapErr()).toBe("known");
   });
 });
