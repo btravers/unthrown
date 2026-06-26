@@ -1,0 +1,55 @@
+import { Future, Result as BoxedResult } from "@bloodyowl/boxed";
+import { err, ok, type Result } from "unthrown";
+import { describe, expect, it } from "vitest";
+
+import { fromBoxed, fromBoxedFuture, toBoxed, toBoxedFuture } from "./index.js";
+
+const boom = new Error("boom");
+const aDefect: Result<number, string> = ok(0).map<number>(() => {
+  throw boom;
+});
+
+describe("toBoxed", () => {
+  it("maps Ok and Err across", () => {
+    const okR = toBoxed(ok(1), () => "x");
+    expect(okR.isOk() && okR.get()).toBe(1);
+    const errR = toBoxed(err("nope") as Result<number, string>, () => "x");
+    expect(errR.isError() && errR.getError()).toBe("nope");
+  });
+
+  it("forces a defect to be triaged into the error channel", () => {
+    const r = toBoxed(aDefect, (cause) => `bug:${String(cause)}`);
+    expect(r.isError() && r.getError()).toBe(`bug:${String(boom)}`);
+  });
+});
+
+describe("fromBoxed", () => {
+  it("maps Result.Ok to Ok and Result.Error to Err — never a Defect", () => {
+    expect(fromBoxed(BoxedResult.Ok(1))).toMatchObject({ tag: "Ok", value: 1 });
+    expect(fromBoxed(BoxedResult.Error("nope"))).toMatchObject({ tag: "Err", error: "nope" });
+  });
+});
+
+describe("toBoxedFuture", () => {
+  it("maps Ok across and triages a defect", async () => {
+    const okR = await toBoxedFuture(ok(1).toAsync(), () => "x").toPromise();
+    expect(okR.isOk() && okR.get()).toBe(1);
+    const defR = await toBoxedFuture(
+      aDefect.toAsync(),
+      (cause) => `bug:${String(cause)}`,
+    ).toPromise();
+    expect(defR.isError() && defR.getError()).toBe(`bug:${String(boom)}`);
+  });
+});
+
+describe("fromBoxedFuture", () => {
+  it("maps a Future of Ok/Error to Ok/Err", async () => {
+    expect(await fromBoxedFuture(Future.value(BoxedResult.Ok<number, string>(1)))).toMatchObject({
+      tag: "Ok",
+      value: 1,
+    });
+    expect(
+      await fromBoxedFuture(Future.value(BoxedResult.Error<number, string>("nope"))),
+    ).toMatchObject({ tag: "Err", error: "nope" });
+  });
+});

@@ -11,6 +11,9 @@
     "preview": "vitepress preview ."
   },
   "dependencies": {
+    "@unthrown/boxed": "workspace:*",
+    "@unthrown/effect": "workspace:*",
+    "@unthrown/neverthrow": "workspace:*",
     "@unthrown/pattern": "workspace:*",
     "@unthrown/vitest": "workspace:*",
     "unthrown": "workspace:*"

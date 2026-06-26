@@ -58,6 +58,7 @@ export default defineConfig({
           items: [
             { text: "Testing", link: "/guide/testing" },
             { text: "Pattern Matching", link: "/guide/pattern-matching" },
+            { text: "Interop", link: "/guide/interop" },
           ],
         },
       ],
@@ -69,6 +70,9 @@ export default defineConfig({
             { text: "unthrown", link: "/api/core/" },
             { text: "@unthrown/vitest", link: "/api/vitest/" },
             { text: "@unthrown/pattern", link: "/api/pattern/" },
+            { text: "@unthrown/effect", link: "/api/effect/" },
+            { text: "@unthrown/neverthrow", link: "/api/neverthrow/" },
+            { text: "@unthrown/boxed", link: "/api/boxed/" },
           ],
         },
       ],
