@@ -1,0 +1,32 @@
+version: 2
+updates:
+  # pnpm packages
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    groups:
+      commitlint:
+        patterns:
+          - "@commitlint/*"
+      vitest:
+        patterns:
+          - "@vitest/*"
+          - "vitest"
+      dev-dependencies:
+        dependency-type: "development"
+    ignore:
+      # Only allow @types/node patch/minor updates (block major version bumps)
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
+    open-pull-requests-limit: 10
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    
