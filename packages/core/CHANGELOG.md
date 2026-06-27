@@ -1,5 +1,45 @@
 # unthrown
 
+## 1.0.0
+
+### Major Changes
+
+- d5f4256: **BREAKING:** capitalize the value constructors so they match the
+  discriminated-union tags (`"Ok"`/`"Err"`/`"Defect"`) and the capitalized `Do`:
+  - `ok` → `Ok`, `err` → `Err`, `defect` → `Defect`
+  - facade: `Result.ok`/`err`/`defect` → `Result.Ok`/`Err`/`Defect`
+  - `@unthrown/pattern`: `P.ok`/`err`/`defect` → `P.Ok`/`Err`/`Defect`
+
+  Unchanged: the `match` handler keys (`r.match({ ok, err, defect })`), the guards
+  (`isOk`/`isErr`/`isDefect`), and the `"defect channel"` terminology. Migration is
+  a near-mechanical rename of the constructor call sites (`ok(` → `Ok(`, etc.).
+  Note `Err`, not `Error`, to avoid shadowing the global `Error`.
+
+### Minor Changes
+
+- b6cc550: Add **do-notation**: `Do()` plus the `bind` / `let` methods on `Result` and
+  `AsyncResult`, for sequencing dependent steps into a named scope without nested
+  `flatMap` closures.
+
+  ```ts
+  Do()
+    .bind("user", () => findUser(id)) // Result<User, NotFound>
+    .bind("org", ({ user }) => findOrg(user.orgId)) // Result<Org, NotFound>
+    .let("label", ({ user, org }) => `${user.name} @ ${org.name}`)
+    .map(({ user, org, label }) => render(user, org, label));
+  // Result<View, NotFound>
+  ```
+
+  `bind(name, f)` sequences a `Result`-returning step and binds its value under
+  `name` in an accumulating **readonly** object scope (error types union); `let`
+  binds a pure value. On `AsyncResult`, `bind` accepts a `Result` or an
+  `AsyncResult`. A throw in either becomes a `Defect`, and `Err`/`Defect`
+  short-circuits — same guarantees as every other combinator. (`Do` is capitalised
+  because `do` is reserved; lift a sync chain with `toAsync()` to go async.)
+
+  This is the fluent do-notation only; generator (`gen`/`safeTry`) style remains
+  out of scope.
+
 ## 0.3.0
 
 ### Minor Changes
