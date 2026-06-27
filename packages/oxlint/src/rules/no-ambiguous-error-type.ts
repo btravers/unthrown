@@ -1,0 +1,80 @@
+import { defineRule } from "@oxlint/plugins";
+
+import { getImportSource } from "../helpers/get-import-source.js";
+import { hasTypeArguments } from "../helpers/has-type-arguments.js";
+import { isIdentifierTypeName } from "../helpers/is-identifier-type-name.js";
+
+import type { ESTree } from "@oxlint/plugins";
+
+const MODULE = "unthrown";
+const RESULT_TYPES = ["Result", "AsyncResult"] as const;
+
+// Keyword type nodes that say nothing about the domain — they make `E` a
+// catch-all, which is exactly what Thesis #1 forbids.
+const AMBIGUOUS_KEYWORDS: ReadonlySet<string> = new Set([
+  "TSUnknownKeyword",
+  "TSAnyKeyword",
+  "TSStringKeyword",
+  "TSNumberKeyword",
+  "TSBooleanKeyword",
+  "TSBigIntKeyword",
+  "TSSymbolKeyword",
+  "TSObjectKeyword",
+  "TSNullKeyword",
+  "TSUndefinedKeyword",
+]);
+
+/**
+ * Disallow a non-specific error type in the `E` position of `Result<T, E>` /
+ * `AsyncResult<T, E>`: `unknown`, `any`, `Error`, bare `{}` / `object`, and the
+ * primitive keywords. `E` should name the *anticipated* domain failures — a
+ * tagged error, a union of them, a literal — not "anything went wrong". `never`
+ * (an intentionally error-free result) is allowed.
+ */
+export const noAmbiguousErrorType = defineRule({
+  meta: {
+    type: "problem",
+    docs: {
+      description:
+        "Disallow non-specific error types (`unknown`, `any`, `Error`, `object`, `{}`, primitives) in the error position of `Result` / `AsyncResult`",
+      recommended: true,
+    },
+    messages: {
+      noAmbiguousErrorType:
+        "Specify a concrete domain error instead of `{{ type }}` in `{{ result }}`.",
+    },
+  },
+  createOnce: (context) => {
+    return {
+      TSTypeReference: (node) => {
+        if (!isIdentifierTypeName(node, RESULT_TYPES)) return;
+        if (!hasTypeArguments(node, 2)) return;
+
+        const importSource = getImportSource(context.sourceCode.getScope(node), node.typeName);
+        if (importSource !== MODULE) return;
+
+        const errorNode: ESTree.TSType = node.typeArguments.params[1];
+        if (errorNode.type === "TSTypeLiteral") {
+          // Only the *empty* object literal `{}` is ambiguous; `{ code: number }` is fine.
+          if (errorNode.members.length > 0) return;
+        } else if (errorNode.type === "TSTypeReference") {
+          // Only the bare `Error` class is too generic; a `MyError` is fine.
+          if (errorNode.typeName.type !== "Identifier" || errorNode.typeName.name !== "Error") {
+            return;
+          }
+        } else if (!AMBIGUOUS_KEYWORDS.has(errorNode.type)) {
+          return;
+        }
+
+        context.report({
+          node: errorNode,
+          messageId: "noAmbiguousErrorType",
+          data: {
+            type: context.sourceCode.getText(errorNode),
+            result: context.sourceCode.getText(node),
+          },
+        });
+      },
+    };
+  },
+});

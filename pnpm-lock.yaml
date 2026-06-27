@@ -18,6 +18,9 @@ catalogs:
     '@commitlint/config-conventional':
       specifier: 21.0.2
       version: 21.0.2
+    '@oxlint/plugins':
+      specifier: 1.69.0
+      version: 1.69.0
     '@standard-schema/spec':
       specifier: 1.1.0
       version: 1.1.0
@@ -270,6 +273,34 @@ importers:
       typedoc-plugin-markdown:
         specifier: 'catalog:'
         version: 4.12.0(typedoc@0.28.19(typescript@6.0.3))
+      typescript:
+        specifier: 'catalog:'
+        version: 6.0.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.1.8(@types/node@24.13.2)(@vitest/coverage-v8@4.1.8)(esbuild@0.28.1)(jiti@2.7.0)(tsx@4.22.4)(yaml@2.9.0)
+
+  packages/oxlint:
+    dependencies:
+      '@oxlint/plugins':
+        specifier: 'catalog:'
+        version: 1.69.0
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 24.13.2
+      '@unthrown/tsconfig':
+        specifier: workspace:*
+        version: link:../../tools/tsconfig
+      '@vitest/coverage-v8':
+        specifier: 'catalog:'
+        version: 4.1.8(vitest@4.1.8)
+      oxlint:
+        specifier: 'catalog:'
+        version: 1.69.0
+      tsdown:
+        specifier: 'catalog:'
+        version: 0.22.2(oxc-resolver@11.21.3)(tsx@4.22.4)(typescript@6.0.3)
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
@@ -1545,6 +1576,10 @@ packages:
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [x64]
     os: [win32]
+
+  '@oxlint/plugins@1.69.0':
+    resolution: {integrity: sha512-4MLUf2a9ai9EymFvcIBvaCkHJkvOA/WHmPhzrTu0cRBYpaaMBxmwwjGTOYdBC149XAwtaL7eaCnojkqxdMvuKg==}
+    engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
 
   '@quansync/fs@1.0.0':
     resolution: {integrity: sha512-4TJ3DFtlf1L5LDMaM6CanJ/0lckGNtJcMjQ1NAV6zDmA0tEHKZtxNKin8EgPaVX1YzljbxckyT2tJrpQKAtngQ==}
@@ -4319,6 +4354,8 @@ snapshots:
 
   '@oxlint/binding-win32-x64-msvc@1.69.0':
     optional: true
+
+  '@oxlint/plugins@1.69.0': {}
 
   '@quansync/fs@1.0.0':
     dependencies:

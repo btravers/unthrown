@@ -15,6 +15,7 @@ catalog:
   "@bloodyowl/boxed": 3.4.0
   "@standard-schema/spec": 1.1.0
   "@commitlint/config-conventional": 21.0.2
+  "@oxlint/plugins": 1.69.0
   "@types/node": 24.13.2
   "@vitest/coverage-v8": 4.1.8
   effect: 3.21.4
