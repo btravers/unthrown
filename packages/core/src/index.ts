@@ -1,6 +1,6 @@
-export { err, isDefect, isErr, isOk, ok } from "./constructors.js";
+export { Err, isDefect, isErr, isOk, Ok } from "./constructors.js";
 export { UnwrapError } from "./core.js";
-export { defect } from "./defect.js";
+export { Defect } from "./defect.js";
 export { Do } from "./do.js";
 export { Result } from "./facade.js";
 export {
@@ -15,7 +15,6 @@ export {
 } from "./interop.js";
 export { matchTags, TaggedError } from "./tagged.js";
 
-export type { Defect } from "./defect.js";
 export type { TaggedErrorConstructor, TaggedErrorInstance, TagHandlers } from "./tagged.js";
 export type {
   AsyncErrOf,

@@ -6,18 +6,18 @@
 // modeled failure (`Cause.fail`, ↔ `Err`) from an unexpected one (`Cause.die`,
 // ↔ `Defect`). So `Result ↔ Exit` is a genuine bijection — the showcase here.
 //
-//   import { ok } from "unthrown";
+//   import { Ok } from "unthrown";
 //   import { toExit, fromEffect } from "@unthrown/effect";
 //
-//   toExit(ok(1));                 // Exit.succeed(1)
+//   toExit(Ok(1));                 // Exit.succeed(1)
 //   await fromEffect(Effect.succeed(1)).match({ ok, err, defect });
 //
 // `Either` has only two channels, so converting a `Result` *into* an `Either`
-// forces you to triage the defect with `onDefect` (Thesis #3): there is no
+// forces you to triage the Defect with `onDefect` (Thesis #3): there is no
 // silent path that drops it.
 
 import { Cause, Effect, Either, Exit, Option } from "effect";
-import { defect, err, fromSafePromise, fromThrowable, ok } from "unthrown";
+import { Defect, Err, fromSafePromise, fromThrowable, Ok } from "unthrown";
 import type { AsyncResult, Result } from "unthrown";
 
 /**
@@ -35,9 +35,9 @@ import type { AsyncResult, Result } from "unthrown";
  *
  * @example
  * ```ts
- * import { ok } from "unthrown";
+ * import { Ok } from "unthrown";
  * import { toExit } from "@unthrown/effect";
- * toExit(ok(1)); // Exit.succeed(1)
+ * toExit(Ok(1)); // Exit.succeed(1)
  * ```
  */
 export function toExit<T, E>(result: Result<T, E>): Exit.Exit<T, E> {
@@ -69,12 +69,12 @@ export function toExit<T, E>(result: Result<T, E>): Exit.Exit<T, E> {
  */
 export function fromExit<T, E>(exit: Exit.Exit<T, E>): Result<T, E> {
   return Exit.match(exit, {
-    onSuccess: (value) => ok(value),
+    onSuccess: (value) => Ok(value),
     onFailure: (cause) => {
       const die = Cause.dieOption(cause);
       if (Option.isSome(die)) return dieToResult<T, E>(die.value);
       const failure = Cause.failureOption(cause);
-      if (Option.isSome(failure)) return err(failure.value);
+      if (Option.isSome(failure)) return Err(failure.value);
       // No modeled failure and no die: a pure interruption (or empty cause).
       return dieToResult<T, E>(Cause.squash(cause));
     },
@@ -82,10 +82,10 @@ export function fromExit<T, E>(exit: Exit.Exit<T, E>): Result<T, E> {
 }
 
 /**
- * Convert a `Result` into an Effect `Either`, triaging any defect.
+ * Convert a `Result` into an Effect `Either`, triaging any Defect.
  *
  * @remarks
- * `Either` has no defect channel, so a `Defect` cannot pass through silently —
+ * `Either` has no Defect channel, so a `Defect` cannot pass through silently —
  * `onDefect` **must** fold its cause into a modeled error `E` (a `Left`). This
  * is the boundary-qualification rule (Thesis #3) applied on the way out:
  * `Ok → Right`, `Err → Left`, `Defect → Left(onDefect(cause))`.
@@ -93,7 +93,7 @@ export function fromExit<T, E>(exit: Exit.Exit<T, E>): Result<T, E> {
  * @typeParam T - the success value type.
  * @typeParam E - the modeled error type.
  * @param result - the result to convert.
- * @param onDefect - folds a defect's unknown cause into a modeled `E`.
+ * @param onDefect - folds a Defect's unknown cause into a modeled `E`.
  */
 export function toEither<T, E>(
   result: Result<T, E>,
@@ -110,7 +110,7 @@ export function toEither<T, E>(
  * Convert an Effect `Either` into a `Result`.
  *
  * @remarks
- * `Right → Ok`, `Left → Err`. An `Either` carries no defect, so the result is
+ * `Right → Ok`, `Left → Err`. An `Either` carries no Defect, so the result is
  * never a `Defect`.
  *
  * @typeParam T - the success value type.
@@ -119,8 +119,8 @@ export function toEither<T, E>(
  */
 export function fromEither<T, E>(either: Either.Either<T, E>): Result<T, E> {
   return Either.match(either, {
-    onLeft: (error) => err(error),
-    onRight: (value) => ok(value),
+    onLeft: (error) => Err(error),
+    onRight: (value) => Ok(value),
   });
 }
 
@@ -176,13 +176,13 @@ function resultToEffect<T, E>(result: Result<T, E>): Effect.Effect<T, E> {
 
 // Effect's `die`/interruption channel is an un-triaged failure crossing into
 // unthrown; replaying it through the throwable boundary lands it in the `Defect`
-// state — the sanctioned (boundary-only) way to mint a defect `Result`.
+// state — the sanctioned (boundary-only) way to mint a Defect `Result`.
 function dieToResult<T, E>(cause: unknown): Result<T, E> {
-  // The thunk always throws, so its `T` return is honest; `qualify` is `defect`,
+  // The thunk always throws, so its `T` return is honest; `qualify` is `Defect`,
   // so the modeled error is `never` — widened to `E` here (there is no `Err`).
   return fromThrowable((): T => {
     throw cause;
-  }, defect)() as Result<T, E>;
+  }, Defect)() as Result<T, E>;
 }
 
 function settle<T, E>(asyncResult: AsyncResult<T, E>): Promise<Result<T, E>> {

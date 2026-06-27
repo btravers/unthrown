@@ -40,7 +40,7 @@ freely, and a thrown callback still becomes a `Defect`:
 
 ```ts
 Do()
-  .bind("n", () => ok(2))
+  .bind("n", () => Ok(2))
   .let("doubled", ({ n }) => n * 2)
   .match({
     ok: ({ n, doubled }) => `${n} → ${doubled}`,
@@ -56,12 +56,12 @@ To sequence asynchronous steps, lift the chain with `toAsync()`. From there a
 [Boundaries](./boundaries)):
 
 ```ts
-import { Do, fromPromise, defect } from "unthrown";
+import { Do, fromPromise, Defect } from "unthrown";
 
 const profile = await Do()
   .toAsync()
-  .bind("user", () => fromPromise(fetchUser(id), (c) => defect(c)))
-  .bind("posts", ({ user }) => fromPromise(fetchPosts(user.id), (c) => defect(c)))
+  .bind("user", () => fromPromise(fetchUser(id), (c) => Defect(c)))
+  .bind("posts", ({ user }) => fromPromise(fetchPosts(user.id), (c) => Defect(c)))
   .let("count", ({ posts }) => posts.length)
   .match({ ok: (s) => s, err: () => null, defect: () => null });
 ```

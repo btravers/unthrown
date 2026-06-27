@@ -17,15 +17,15 @@ import "@unthrown/vitest";
 ```
 
 ```ts
-expect(ok(1)).toBeOk();
-expect(ok(1)).toBeOkWith(1);
-expect(err(new NotFound())).toBeErrTagged("NotFound");
+expect(Ok(1)).toBeOk();
+expect(Ok(1)).toBeOkWith(1);
+expect(Err(new NotFound())).toBeErrTagged("NotFound");
 expect(aDefect).toBeDefect();
 
 // toBeErrTagged also takes an optional payload: a plain object matches exactly,
 // an asymmetric matcher matches partially.
-expect(err(new NotFound({ id: 1 }))).toBeErrTagged("NotFound", { id: 1 });
-expect(err(new NotFound({ id: 1, msg: "x" }))).toBeErrTagged(
+expect(Err(new NotFound({ id: 1 }))).toBeErrTagged("NotFound", { id: 1 });
+expect(Err(new NotFound({ id: 1, msg: "x" }))).toBeErrTagged(
   "NotFound",
   expect.objectContaining({ id: 1 }),
 );

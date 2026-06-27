@@ -2,10 +2,10 @@ import { describe, expect, it } from "vitest";
 
 import {
   type AsyncResult,
-  err,
+  Err,
   fromSafePromise,
   matchTags,
-  ok,
+  Ok,
   type Result,
   TaggedError,
 } from "./index.js";
@@ -66,7 +66,7 @@ describe("TaggedError", () => {
 
   it("still dispatches on the namespaced _tag in matchTags", () => {
     class Retryable extends TaggedError("@my-lib/Retryable", { name: "Retryable" }) {}
-    const out = matchTags(err(new Retryable()) as Result<number, Retryable>, {
+    const out = matchTags(Err(new Retryable()) as Result<number, Retryable>, {
       Ok: (n) => `ok:${n}`,
       Defect: () => "defect",
       "@my-lib/Retryable": (e) => `retry:${e.name}`,
@@ -86,24 +86,24 @@ describe("matchTags", () => {
     });
 
   it("dispatches Ok to the Ok handler", () => {
-    expect(fold(ok(7))).toBe("ok:7");
+    expect(fold(Ok(7))).toBe("ok:7");
   });
 
   it("dispatches each tagged error to the handler matching its _tag", () => {
-    expect(fold(err(new NotFound()))).toBe("not-found");
-    expect(fold(err(new Forbidden({ user: "bob" })))).toBe("forbidden:bob");
-    expect(fold(err(new HttpError({ status: 503, message: "down" })))).toBe("http:503");
+    expect(fold(Err(new NotFound()))).toBe("not-found");
+    expect(fold(Err(new Forbidden({ user: "bob" })))).toBe("forbidden:bob");
+    expect(fold(Err(new HttpError({ status: 503, message: "down" })))).toBe("http:503");
   });
 
   it("narrows each error variant to its payload in its handler", () => {
     // `e.user` / `e.status` below only typecheck because the variant is narrowed.
-    const r: Result<number, ApiError> = err(new Forbidden({ user: "alice" }));
+    const r: Result<number, ApiError> = Err(new Forbidden({ user: "alice" }));
     expect(fold(r)).toBe("forbidden:alice");
   });
 
   it("dispatches a Defect to the Defect handler", () => {
     const boom = new Error("kaboom");
-    const r = ok(0).map<number>(() => {
+    const r = Ok(0).map<number>(() => {
       throw boom;
     }) as Result<number, ApiError>;
     expect(fold(r)).toBe(`defect:${String(boom)}`);

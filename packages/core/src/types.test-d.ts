@@ -14,17 +14,17 @@ import {
   type AsyncErrOf,
   type AsyncOkOf,
   type AsyncResult,
-  defect,
+  Defect,
   Do,
   type ErrOf,
-  err,
+  Err,
   fromPromise,
   fromThrowable,
   isDefect,
   isErr,
   isOk,
   matchTags,
-  ok,
+  Ok,
   type OkOf,
   type Result,
   TaggedError,
@@ -38,15 +38,15 @@ type Expect<T extends true> = T;
 
 // --- constructors ------------------------------------------------------------
 
-const okV = ok(1);
+const okV = Ok(1);
 type _ok = Expect<Equal<typeof okV, Result<number, never>>>;
 
-const errV = err<string>("e");
+const errV = Err<string>("e");
 type _err = Expect<Equal<typeof errV, Result<never, string>>>;
 
 // --- aggregation: `all` keeps positional tuple types -------------------------
 
-const tuple = all([ok(1), ok("x"), ok(true)]);
+const tuple = all([Ok(1), Ok("x"), Ok(true)]);
 type _tuple = Expect<Equal<typeof tuple, Result<[number, string, boolean], never>>>;
 
 // the empty tuple stays `[]`, not `never[]` (regression guard)
@@ -65,32 +65,32 @@ const mixedErr = all([r1, r2]);
 type _mixedErr = Expect<Equal<typeof mixedErr, Result<[number, string], "e1" | "e2">>>;
 
 // `allFromDict` produces a record of values, keyed by name
-const dict = allFromDict({ id: ok(1), name: ok("ada") });
+const dict = allFromDict({ id: Ok(1), name: Ok("ada") });
 type _dict = Expect<Equal<typeof dict, Result<{ id: number; name: string }, never>>>;
 
 // async counterparts
 const tupleAsync = allAsync([r1.toAsync(), r2.toAsync()]);
 type _tupleAsync = Expect<Equal<typeof tupleAsync, AsyncResult<[number, string], "e1" | "e2">>>;
 
-const dictAsync = allFromDictAsync({ id: ok(1).toAsync(), name: ok("ada").toAsync() });
+const dictAsync = allFromDictAsync({ id: Ok(1).toAsync(), name: Ok("ada").toAsync() });
 type _dictAsync = Expect<Equal<typeof dictAsync, AsyncResult<{ id: number; name: string }, never>>>;
 
 // --- boundaries: `Defect` is subtracted from the error channel ---------------
 
-// a defect-only qualify yields `E = never`
-const defectOnly = fromPromise(Promise.resolve(1), (c) => defect(c));
+// a Defect-only qualify yields `E = never`
+const defectOnly = fromPromise(Promise.resolve(1), (c) => Defect(c));
 type _defectOnly = Expect<Equal<typeof defectOnly, AsyncResult<number, never>>>;
 
 // a mixed qualify keeps only the modeled arm
 const mixedQualify = fromPromise(Promise.resolve(1), (c) =>
-  c === 1 ? ("nf" as const) : defect(c),
+  c === 1 ? ("nf" as const) : Defect(c),
 );
 type _mixedQualify = Expect<Equal<typeof mixedQualify, AsyncResult<number, "nf">>>;
 
 // the same subtraction on `fromThrowable`
 const throwable = fromThrowable(
   (s: string) => s.length,
-  (c) => defect(c),
+  (c) => Defect(c),
 );
 type _throwable = Expect<Equal<ReturnType<typeof throwable>, Result<number, never>>>;
 
@@ -101,11 +101,11 @@ fromPromise(Promise.resolve(1));
 // --- combinators -------------------------------------------------------------
 
 // flatMap widens the error channel
-const flatMapped = r1.flatMap(() => err<"e2">("e2"));
+const flatMapped = r1.flatMap(() => Err<"e2">("e2"));
 type _flatMapped = Expect<Equal<typeof flatMapped, Result<never, "e1" | "e2">>>;
 
 // flatTap KEEPS the value type and widens the error channel
-const flatTapped = r1.flatTap(() => err<"e2">("e2"));
+const flatTapped = r1.flatTap(() => Err<"e2">("e2"));
 type _flatTapped = Expect<Equal<typeof flatTapped, Result<number, "e1" | "e2">>>;
 
 // recover empties the error channel (to `never`)
@@ -122,8 +122,8 @@ type _errMapped = Expect<Equal<typeof errMapped, Result<number, 0>>>;
 
 // the accumulated scope is readonly (it mustn't be mutated mid-chain)
 const doChain = Do()
-  .bind("a", () => ok(1))
-  .bind("b", ({ a }) => (a > 0 ? ok("x") : err<"e1">("e1")))
+  .bind("a", () => Ok(1))
+  .bind("b", ({ a }) => (a > 0 ? Ok("x") : Err<"e1">("e1")))
   .let("c", ({ a, b }) => a + b.length);
 type _doChain = Expect<
   Equal<
@@ -134,7 +134,7 @@ type _doChain = Expect<
 
 // the bound scope is typed in each step's callback (compiles → keys are present)
 const doScoped = Do()
-  .bind("user", () => ok({ name: "ada" }))
+  .bind("user", () => Ok({ name: "ada" }))
   .let("upper", ({ user }) => user.name.toUpperCase());
 type _doScoped = Expect<
   Equal<typeof doScoped, Result<{ readonly user: { name: string }; readonly upper: string }, never>>
@@ -143,7 +143,7 @@ type _doScoped = Expect<
 // async do-notation accumulates the same way
 const doAsync = Do()
   .toAsync()
-  .bind("a", () => ok(1))
+  .bind("a", () => Ok(1))
   .let("b", ({ a }) => a + 1);
 type _doAsync = Expect<
   Equal<typeof doAsync, AsyncResult<{ readonly a: number; readonly b: number }, never>>
@@ -151,8 +151,8 @@ type _doAsync = Expect<
 
 // re-binding a key OVERWRITES it (not an unsound `number & string` intersection)
 const doRebind = Do()
-  .bind("a", () => ok(1))
-  .bind("a", () => ok("x"));
+  .bind("a", () => Ok(1))
+  .bind("a", () => Ok("x"));
 type _doRebind = Expect<Equal<typeof doRebind, Result<{ readonly a: string }, never>>>;
 
 // --- guards narrow (methods AND standalone) ----------------------------------

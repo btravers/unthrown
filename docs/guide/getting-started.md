@@ -24,13 +24,13 @@ and has **zero runtime dependencies**. It targets TypeScript with `strict` mode.
 ## Your first Result
 
 A `Result<T, E>` is either an **Ok** carrying a value `T`, or an **Err** carrying
-a _modeled_ error `E`. Build them with `ok` and `err`:
+a _modeled_ error `E`. Build them with `Ok` and `Err`:
 
 ```ts
-import { ok, err, type Result } from "unthrown";
+import { Ok, Err, type Result } from "unthrown";
 
 function half(n: number): Result<number, "odd"> {
-  return n % 2 === 0 ? ok(n / 2) : err("odd");
+  return n % 2 === 0 ? Ok(n / 2) : Err("odd");
 }
 ```
 

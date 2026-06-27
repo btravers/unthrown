@@ -35,9 +35,9 @@ A combinator only runs its callback on its own channel — the other states flow
 through untouched:
 
 ```ts
-ok(2).map((n) => n + 1); // Ok(3)
-err("e").map((n) => n + 1); // Err("e") — callback skipped
-ok(2).mapErr((e) => `${e}!`); // Ok(2) — callback skipped
+Ok(2).map((n) => n + 1); // Ok(3)
+Err("e").map((n) => n + 1); // Err("e") — callback skipped
+Ok(2).mapErr((e) => `${e}!`); // Ok(2) — callback skipped
 ```
 
 `tap` and `flatTap` both run a side effect and keep the original value — the
@@ -47,7 +47,7 @@ threads its error (a validation or write whose _outcome_ matters but whose
 _value_ you don't need):
 
 ```ts
-ok(user)
+Ok(user)
   .flatTap((u) => writeAudit(u)) // returns Result<void, WriteError>
   .map((u) => u.name);
 // → still the original user on success; short-circuits to WriteError on failure
@@ -58,7 +58,7 @@ ok(user)
 The constructors and helpers are tree-shakeable free functions:
 
 ```ts
-import { ok, err, fromNullable, all } from "unthrown";
+import { Ok, Err, fromNullable, all } from "unthrown";
 ```
 
 If you prefer a namespace, a `Result` companion object aliases the same entry
@@ -67,13 +67,13 @@ points — handy for discoverability:
 ```ts
 import { Result } from "unthrown";
 
-Result.ok(1);
+Result.Ok(1);
 Result.fromNullable(map.get(key), () => "absent");
-Result.all([Result.ok(1), Result.ok(2)]);
+Result.all([Result.Ok(1), Result.Ok(2)]);
 ```
 
 The free functions remain the primary, tree-shakeable API; `Result.*` is a
-zero-cost alias (a separate export — `import { ok }` never pulls it in).
+zero-cost alias (a separate export — `import { Ok }` never pulls it in).
 
 ## Guards that narrow
 
@@ -85,7 +85,7 @@ predicates):
 ```ts
 import { isOk, isErr } from "unthrown";
 
-const r: Result<number, string> = ok(7);
+const r: Result<number, string> = Ok(7);
 
 // standalone function
 if (isOk(r)) {
@@ -103,11 +103,11 @@ if (r.isErr()) {
 Once you are ready to leave the `Result` world, pick the right exit:
 
 ```ts
-ok(1).unwrap(); // 1            — throws on Err/Defect
-err("e").unwrapErr(); // "e"    — throws on Ok/Defect
-err("e").unwrapOr(0); // 0      — recovers an Err; rethrows a Defect
-err("e").getOrNull(); // null   — recovers an Err; rethrows a Defect
-ok(1).match({ ok, err, defect }); // fold all three channels
+Ok(1).unwrap(); // 1            — throws on Err/Defect
+Err("e").unwrapErr(); // "e"    — throws on Ok/Defect
+Err("e").unwrapOr(0); // 0      — recovers an Err; rethrows a Defect
+Err("e").getOrNull(); // null   — recovers an Err; rethrows a Defect
+Ok(1).match({ ok, err, defect }); // fold all three channels
 ```
 
 `unwrapOr`, `unwrapOrElse`, `getOrNull`, and `getOrUndefined` recover a modeled
@@ -122,19 +122,19 @@ earlier `Err`). A fixed tuple keeps its positional types; a dynamic
 `Result<T, E>[]` collapses to `Result<T[], E>`:
 
 ```ts
-import { all, ok, type Result } from "unthrown";
+import { all, Ok, type Result } from "unthrown";
 
-all([ok(1), ok("two"), ok(true)]).unwrap(); // [1, "two", true] (typed [number, string, boolean])
-all([ok(1), ok(2)] as Result<number, never>[]).unwrap(); // number[]
+all([Ok(1), Ok("two"), Ok(true)]).unwrap(); // [1, "two", true] (typed [number, string, boolean])
+all([Ok(1), Ok(2)] as Result<number, never>[]).unwrap(); // number[]
 ```
 
 For **named** parallel work, `allFromDict` takes a record instead — same rules,
 no tupling:
 
 ```ts
-import { allFromDict, ok } from "unthrown";
+import { allFromDict, Ok } from "unthrown";
 
-allFromDict({ id: ok(1), name: ok("ada") }).unwrap(); // { id: 1, name: "ada" }
+allFromDict({ id: Ok(1), name: Ok("ada") }).unwrap(); // { id: 1, name: "ada" }
 ```
 
 Both short-circuit on the first `Err` — this is **not** error accumulation. If

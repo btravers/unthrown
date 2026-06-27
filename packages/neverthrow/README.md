@@ -16,11 +16,11 @@ every neverthrow result is an `Ok` or `Err` — never a `Defect`. Going **out**,
 `onDefect` — no defect is ever silently folded into your domain error type.
 
 ```ts
-import { ok } from "unthrown";
+import { Ok } from "unthrown";
 import { toNeverthrow, fromNeverthrow } from "@unthrown/neverthrow";
 import { ok as ntOk } from "neverthrow";
 
-toNeverthrow(ok(1), (cause) => ({ _tag: "Bug", cause })); // neverthrow Ok(1)
+toNeverthrow(Ok(1), (cause) => ({ _tag: "Bug", cause })); // neverthrow Ok(1)
 fromNeverthrow(ntOk(1)); // Result<number, never>
 ```
 

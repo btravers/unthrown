@@ -4,13 +4,13 @@
 // neverthrow has two channels (`Ok`/`Err`), so it cannot represent unthrown's
 // third one. Coming *in*, every neverthrow result is an `Ok` or `Err` — never a
 // `Defect`. Going *out*, a `Defect` has nowhere to live, so `toNeverthrow`
-// forces you to triage it with `onDefect` (Thesis #3): no defect is ever
+// forces you to triage it with `onDefect` (Thesis #3): no Defect is ever
 // silently folded into your domain error type.
 //
-//   import { ok } from "unthrown";
+//   import { Ok } from "unthrown";
 //   import { toNeverthrow, fromNeverthrow } from "@unthrown/neverthrow";
 //
-//   toNeverthrow(ok(1), (cause) => ({ _tag: "Bug", cause }));
+//   toNeverthrow(Ok(1), (cause) => ({ _tag: "Bug", cause }));
 //   fromNeverthrow(neverthrowOk(1)); // Result<number, never>
 
 import {
@@ -19,21 +19,21 @@ import {
   ResultAsync as NeverthrowResultAsync,
 } from "neverthrow";
 import type { Result as NeverthrowResult } from "neverthrow";
-import { err, fromSafePromise, ok } from "unthrown";
+import { Err, fromSafePromise, Ok } from "unthrown";
 import type { AsyncResult, Result } from "unthrown";
 
 /**
- * Convert a `Result` into a neverthrow `Result`, triaging any defect.
+ * Convert a `Result` into a neverthrow `Result`, triaging any Defect.
  *
  * @remarks
- * neverthrow has no defect channel, so `onDefect` **must** fold a `Defect`'s
- * cause into a modeled error `E` (an `Err`). `Ok → ok`, `Err → err`,
- * `Defect → err(onDefect(cause))`.
+ * neverthrow has no Defect channel, so `onDefect` **must** fold a `Defect`'s
+ * cause into a modeled error `E` (an `Err`). `Ok → Ok`, `Err → Err`,
+ * `Defect → Err(onDefect(cause))`.
  *
  * @typeParam T - the success value type.
  * @typeParam E - the modeled error type.
  * @param result - the result to convert.
- * @param onDefect - folds a defect's unknown cause into a modeled `E`.
+ * @param onDefect - folds a Defect's unknown cause into a modeled `E`.
  */
 export function toNeverthrow<T, E>(
   result: Result<T, E>,
@@ -50,7 +50,7 @@ export function toNeverthrow<T, E>(
  * Convert a neverthrow `Result` into a `Result`.
  *
  * @remarks
- * `ok → Ok`, `err → Err`. neverthrow carries no defect, so the result is never a
+ * `Ok → Ok`, `Err → Err`. neverthrow carries no Defect, so the result is never a
  * `Defect`.
  *
  * @typeParam T - the success value type.
@@ -58,12 +58,12 @@ export function toNeverthrow<T, E>(
  * @param result - the neverthrow result to convert.
  */
 export function fromNeverthrow<T, E>(result: NeverthrowResult<T, E>): Result<T, E> {
-  return result.isOk() ? ok(result.value) : err(result.error);
+  return result.isOk() ? Ok(result.value) : Err(result.error);
 }
 
 /**
  * Convert an `AsyncResult` into a neverthrow `ResultAsync`, triaging any
- * defect.
+ * Defect.
  *
  * @remarks
  * The async counterpart of {@link toNeverthrow}: `onDefect` is required for the
@@ -73,7 +73,7 @@ export function fromNeverthrow<T, E>(result: NeverthrowResult<T, E>): Result<T, 
  * @typeParam T - the success value type.
  * @typeParam E - the modeled error type.
  * @param asyncResult - the async result to convert.
- * @param onDefect - folds a defect's unknown cause into a modeled `E`.
+ * @param onDefect - folds a Defect's unknown cause into a modeled `E`.
  */
 export function toNeverthrowAsync<T, E>(
   asyncResult: AsyncResult<T, E>,

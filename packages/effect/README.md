@@ -16,12 +16,12 @@ failure (`Cause.fail` ↔ `Err`) from an unexpected one (`Cause.die` ↔ `Defect
 So `Result ↔ Exit` is a genuine **bijection**.
 
 ```ts
-import { ok, err } from "unthrown";
+import { Ok, Err } from "unthrown";
 import { toExit, fromEffect, toEither } from "@unthrown/effect";
 import { Effect } from "effect";
 
-toExit(ok(1)); // Exit.succeed(1)
-toExit(err("e")); // Exit.fail("e")        — a modeled Cause.fail
+toExit(Ok(1)); // Exit.succeed(1)
+toExit(Err("e")); // Exit.fail("e")        — a modeled Cause.fail
 
 // Run an Effect and collect its outcome (die/interrupt become a Defect):
 await fromEffect(Effect.succeed(1)).match({ ok, err, defect: String });

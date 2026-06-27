@@ -14,7 +14,7 @@ Any value thrown by a callback inside a combinator is **caught and converted to
 a defect**, never allowed to escape:
 
 ```ts
-const r = ok(1).map(() => {
+const r = Ok(1).map(() => {
   throw new Error("boom");
 });
 
@@ -30,7 +30,7 @@ A defect passes through **every** method untouched — _except_ `match` and
 `recoverDefect`. The success and error combinators never see it:
 
 ```ts
-const d = ok(1).map(() => {
+const d = Ok(1).map(() => {
   throw boom;
 });
 
@@ -87,7 +87,7 @@ only combinator that can observe a defect, and it re-enters the modeled world by
 returning a `Result`:
 
 ```ts
-d.recoverDefect((cause) => (cause instanceof RangeError ? err("out_of_range") : err("unknown")));
+d.recoverDefect((cause) => (cause instanceof RangeError ? Err("out_of_range") : Err("unknown")));
 ```
 
 Use `tapDefect` to observe a defect's cause (e.g. logging) without changing it.

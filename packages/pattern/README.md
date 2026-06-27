@@ -19,18 +19,18 @@ import { match } from "ts-pattern";
 import * as P from "@unthrown/pattern";
 
 match(result)
-  .with(P.ok(), ({ value }) => `ok: ${value}`)
-  .with(P.err(P.tag("Forbidden")), ({ error }) => `403 ${error.user}`)
-  .with(P.err(), () => "error")
-  .with(P.defect(), () => "bug")
+  .with(P.Ok(), ({ value }) => `ok: ${value}`)
+  .with(P.Err(P.tag("Forbidden")), ({ error }) => `403 ${error.user}`)
+  .with(P.Err(), () => "error")
+  .with(P.Defect(), () => "bug")
   .exhaustive();
 ```
 
-- `P.ok(sub?)` / `P.err(sub?)` / `P.defect(sub?)` — match a channel; pass a
+- `P.Ok(sub?)` / `P.Err(sub?)` / `P.Defect(sub?)` — match a channel; pass a
   sub-pattern to constrain or select the payload: a literal, or any `ts-pattern`
   pattern (e.g. `ts-pattern`'s own `P.string` / `P.select()`, imported from
   `ts-pattern`). (Or skip the sugar and match `{ tag: "Ok", … }` directly.)
-- `P.tag(t)` — sugar for `{ _tag: t }`; nested in `P.err(...)` it narrows to the
+- `P.tag(t)` — sugar for `{ _tag: t }`; nested in `P.Err(...)` it narrows to the
   matching `TaggedError` variant, including its payload.
 
 For the everyday exhaustive case, `matchTags` in core is simpler. Reach for this

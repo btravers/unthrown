@@ -4,7 +4,7 @@
 
 import { AsyncRes, defectRes, errRes, okRes } from "./core.js";
 import { type Defect, isDefectMarker } from "./defect.js";
-import { err, ok } from "./constructors.js";
+import { Err, Ok } from "./constructors.js";
 import type { AsyncErrOf, AsyncOkOf, AsyncResult, ErrOf, OkOf, Result } from "./types.js";
 
 /**
@@ -12,7 +12,7 @@ import type { AsyncErrOf, AsyncOkOf, AsyncResult, ErrOf, OkOf, Result } from "./
  * `Err`. The sanctioned alternative to an `Option` type.
  *
  * @remarks
- * `null` and `undefined` map to `err(onAbsent())`; any other value (including
+ * `null` and `undefined` map to `Err(onAbsent())`; any other value (including
  * falsy ones like `0`, `""`, `false`) maps to `Ok`.
  *
  * @typeParam T - the (nullable) value type.
@@ -30,7 +30,7 @@ export function fromNullable<T, E>(
   value: T | null | undefined,
   onAbsent: () => E,
 ): Result<NonNullable<T>, E> {
-  return value === null || value === undefined ? err(onAbsent()) : ok(value as NonNullable<T>);
+  return value === null || value === undefined ? Err(onAbsent()) : Ok(value as NonNullable<T>);
 }
 
 /**
@@ -39,14 +39,14 @@ export function fromNullable<T, E>(
  *
  * @remarks
  * `qualify` **must** triage every thrown cause into a modeled error `E` or a
- * {@link Defect} (via {@link defect}) — there is no path that leaves `unknown`
+ * {@link Defect} (via {@link Defect}) — there is no path that leaves `unknown`
  * in `E`. A throw inside `qualify` itself is treated as a `Defect`.
  *
  * The modeled error type is `Exclude<R, Defect>` — the `Defect` arm of
  * `qualify`'s return is **subtracted** from `E`, never inferred into it. So a
- * `qualify` that returns *only* `defect(cause)` yields `E = never` (a defect is
+ * `qualify` that returns *only* `Defect(cause)` yields `E = never` (a Defect is
  * out-of-band and must not pollute the error channel); reach for
- * {@link fromSafePromise} when every failure is a defect.
+ * {@link fromSafePromise} when every failure is a Defect.
  *
  * @typeParam A - the wrapped function's argument tuple.
  * @typeParam T - the wrapped function's return type.
@@ -58,8 +58,8 @@ export function fromNullable<T, E>(
  *
  * @example
  * ```ts
- * import { fromThrowable, defect } from "unthrown";
- * const parse = fromThrowable(JSON.parse, (cause) => defect(cause));
+ * import { fromThrowable, Defect } from "unthrown";
+ * const parse = fromThrowable(JSON.parse, (cause) => Defect(cause));
  * parse("{}").unwrap();
  * ```
  */
@@ -71,7 +71,7 @@ export function fromThrowable<A extends unknown[], T, R>(
   const triage = qualify as (cause: unknown) => E | Defect;
   return (...args: A): Result<T, E> => {
     try {
-      return ok(fn(...args)) as Result<T, E>;
+      return Ok(fn(...args)) as Result<T, E>;
     } catch (cause) {
       return qualifyToResult<T, E>(cause, triage);
     }
@@ -90,8 +90,8 @@ export function fromThrowable<A extends unknown[], T, R>(
  *
  * The modeled error type is `Exclude<R, Defect>` — the `Defect` arm of
  * `qualify`'s return is **subtracted** from `E`, never inferred into it. So a
- * `qualify` that returns *only* `defect(cause)` yields `E = never`; when every
- * rejection is a defect, prefer {@link fromSafePromise}.
+ * `qualify` that returns *only* `Defect(cause)` yields `E = never`; when every
+ * rejection is a Defect, prefer {@link fromSafePromise}.
  *
  * @typeParam T - the resolved value type.
  * @typeParam R - `qualify`'s return type; the modeled error `E` is
@@ -101,9 +101,9 @@ export function fromThrowable<A extends unknown[], T, R>(
  *
  * @example
  * ```ts
- * import { fromPromise, defect } from "unthrown";
+ * import { fromPromise, Defect } from "unthrown";
  * const user = await fromPromise(fetchUser(id), (cause) =>
- *   cause instanceof NotFoundError ? ("not_found" as const) : defect(cause),
+ *   cause instanceof NotFoundError ? ("not_found" as const) : Defect(cause),
  * );
  * ```
  */
@@ -152,7 +152,7 @@ function qualifyToResult<T, E>(
     const q = qualify(cause);
     return isDefectMarker(q) ? defectRes<T, E>(q.cause) : errRes<T, E>(q);
   } catch (qErr) {
-    // a throw inside qualify is itself a defect
+    // a throw inside qualify is itself a Defect
     return defectRes<T, E>(qErr);
   }
 }
@@ -199,7 +199,7 @@ function foldArray(results: readonly Result<unknown, unknown>[]): Result<unknown
     else if (r.tag === "Err") firstErr ??= r;
     else values.push(r.value);
   }
-  return firstDefect ?? firstErr ?? ok(values);
+  return firstDefect ?? firstErr ?? Ok(values);
 }
 
 /**
@@ -224,7 +224,7 @@ function foldRecord(results: ResultRecord): Result<unknown, unknown> {
         configurable: true,
       });
   }
-  return firstDefect ?? firstErr ?? ok(values);
+  return firstDefect ?? firstErr ?? Ok(values);
 }
 
 /**
@@ -234,16 +234,16 @@ function foldRecord(results: ResultRecord): Result<unknown, unknown> {
  * @remarks
  * Short-circuits on the **first** `Err` (later entries are not inspected for
  * their error); any `Defect` present **dominates**, winning even over an earlier
- * `Err`. A **fixed tuple** keeps its positional types — `all([ok(1), ok("a")])`
+ * `Err`. A **fixed tuple** keeps its positional types — `all([Ok(1), Ok("a")])`
  * is `Result<[number, string], …>` — while a **dynamic array** `Result<T, E>[]`
  * collapses to `Result<T[], E>` with no cast. For a **record** keyed by name,
  * use {@link allFromDict}.
  *
  * @example
  * ```ts
- * import { all, ok } from "unthrown";
- * all([ok(1), ok("a"), ok(true)]).unwrap(); // [1, "a", true] (typed [number, string, boolean])
- * all([ok(1), ok(2)] as Result<number, never>[]).unwrap(); // number[]
+ * import { all, Ok } from "unthrown";
+ * all([Ok(1), Ok("a"), Ok(true)]).unwrap(); // [1, "a", true] (typed [number, string, boolean])
+ * all([Ok(1), Ok(2)] as Result<number, never>[]).unwrap(); // number[]
  * ```
  */
 export function all<Rs extends readonly Result<unknown, unknown>[]>(
@@ -267,8 +267,8 @@ export function all<Rs extends readonly Result<unknown, unknown>[]>(
  *
  * @example
  * ```ts
- * import { allFromDict, ok } from "unthrown";
- * allFromDict({ id: ok(1), name: ok("ada") }).unwrap(); // { id: 1, name: "ada" }
+ * import { allFromDict, Ok } from "unthrown";
+ * allFromDict({ id: Ok(1), name: Ok("ada") }).unwrap(); // { id: 1, name: "ada" }
  * ```
  */
 export function allFromDict<R extends ResultRecord>(

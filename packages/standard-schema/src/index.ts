@@ -5,7 +5,7 @@
 // on failure. `fromSchema` turns that into a validator returning
 // `Result<Output, readonly Issue[]>`; `fromSchemaAsync` is the async counterpart
 // (and also accepts synchronous schemas). The `issues` array is the modeled `E`
-// — a failed validation is an anticipated outcome, never a defect.
+// — a failed validation is an anticipated outcome, never a Defect.
 //
 //   import { fromSchema } from "@unthrown/standard-schema";
 //   import { z } from "zod";
@@ -14,7 +14,7 @@
 //   parseUser(input); // Result<{ id: string }, readonly StandardSchemaV1.Issue[]>
 
 import type { StandardSchemaV1 } from "@standard-schema/spec";
-import { defect, err, fromSafePromise, fromThrowable, ok } from "unthrown";
+import { Defect, Err, fromSafePromise, fromThrowable, Ok } from "unthrown";
 import type { AsyncResult, Result } from "unthrown";
 
 /** The error channel both entry points produce: a schema's validation issues. */
@@ -26,7 +26,7 @@ export type SchemaIssues = readonly StandardSchemaV1.Issue[];
  *
  * @remarks
  * Validation issues are the modeled error `E` — `Result<Output, SchemaIssues>` —
- * because a failed validation is an *anticipated* outcome, not a defect. Works
+ * because a failed validation is an *anticipated* outcome, not a Defect. Works
  * with any Standard Schema implementation (Zod, Valibot, ArkType, …).
  *
  * A validator that **throws** (rather than returning issues) becomes a `Defect`
@@ -53,10 +53,10 @@ export function fromSchema<S extends StandardSchemaV1>(
 ): (input: unknown) => Result<StandardSchemaV1.InferOutput<S>, SchemaIssues> {
   type Output = StandardSchemaV1.InferOutput<S>;
   // Run `validate` at a boundary so a *throwing* validator lands in the Defect
-  // channel instead of escaping; `qualify` only ever mints a defect, so E = never.
+  // channel instead of escaping; `qualify` only ever mints a Defect, so E = never.
   const validate = fromThrowable(
     (input: unknown) => schema["~standard"].validate(input),
-    (cause) => defect(cause),
+    (cause) => Defect(cause),
   );
   return (input) => {
     const settled = validate(input);
@@ -68,7 +68,7 @@ export function fromSchema<S extends StandardSchemaV1>(
     }
     return settled.flatMap((result) => {
       const sync = result as StandardSchemaV1.Result<Output>;
-      return sync.issues ? err(sync.issues) : ok(sync.value);
+      return sync.issues ? Err(sync.issues) : Ok(sync.value);
     });
   };
 }
@@ -99,6 +99,6 @@ export function fromSchemaAsync<S extends StandardSchemaV1>(
 ): (input: unknown) => AsyncResult<StandardSchemaV1.InferOutput<S>, SchemaIssues> {
   return (input) =>
     fromSafePromise(async () => schema["~standard"].validate(input)).flatMap((result) =>
-      result.issues ? err(result.issues) : ok(result.value),
+      result.issues ? Err(result.issues) : Ok(result.value),
     );
 }

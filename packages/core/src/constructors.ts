@@ -11,11 +11,11 @@ import type { DefectView, ErrView, OkView, Result } from "./types.js";
  *
  * @example
  * ```ts
- * import { ok } from "unthrown";
- * ok(42).unwrap(); // 42
+ * import { Ok } from "unthrown";
+ * Ok(42).unwrap(); // 42
  * ```
  */
-export function ok<T>(value: T): Result<T, never> {
+export function Ok<T>(value: T): Result<T, never> {
   return okRes(value);
 }
 
@@ -27,11 +27,11 @@ export function ok<T>(value: T): Result<T, never> {
  *
  * @example
  * ```ts
- * import { err } from "unthrown";
- * err("not_found").unwrapErr(); // "not_found"
+ * import { Err } from "unthrown";
+ * Err("not_found").unwrapErr(); // "not_found"
  * ```
  */
-export function err<E>(error: E): Result<never, E> {
+export function Err<E>(error: E): Result<never, E> {
   return errRes(error);
 }
 

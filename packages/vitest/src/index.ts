@@ -4,7 +4,7 @@
 // and pull in the type augmentation:
 //
 //   import "@unthrown/vitest";
-//   expect(ok(1)).toBeOk();
+//   expect(Ok(1)).toBeOk();
 //   await expect(fromSafePromise(p)).toBeOk(); // AsyncResult — `await` REQUIRED
 //
 // IMPORTANT: for an AsyncResult the matcher is asynchronous, so you MUST `await`

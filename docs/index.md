@@ -39,18 +39,18 @@ features:
 ## At a glance
 
 ```ts
-import { ok, err, fromPromise, type Result } from "unthrown";
+import { Ok, Err, fromPromise, type Result } from "unthrown";
 
 class NotFound extends TaggedError("NotFound") {}
 
 function findUser(id: string): Result<User, NotFound> {
   const user = users.get(id);
-  return user ? ok(user) : err(new NotFound());
+  return user ? Ok(user) : Err(new NotFound());
 }
 
 // Cross an async boundary — every rejection MUST be triaged.
 const profile = fromPromise(fetch(`/u/${id}`), (cause) =>
-  cause instanceof Response ? new NotFound() : defect(cause),
+  cause instanceof Response ? new NotFound() : Defect(cause),
 );
 
 // Handle every channel once, at the edge — no surrounding try/catch.

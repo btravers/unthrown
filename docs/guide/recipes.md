@@ -26,13 +26,13 @@ modeled statuses are mapped in a `flatMap` (a `throw` there, like an unexpected
 status or malformed JSON, becomes a `Defect`):
 
 ```ts
-import { fromPromise, err, defect } from "unthrown";
+import { fromPromise, Err, Defect } from "unthrown";
 
 const loadProfile = (id: string) =>
   // A network error (a rejected fetch) is unexpected → defect.
   fromPromise(fetch(`/api/users/${id}`), defect).flatMap((res) => {
-    if (res.status === 404) return err(new NotFound({ id }));
-    if (res.status === 403) return err(new Forbidden());
+    if (res.status === 404) return Err(new NotFound({ id }));
+    if (res.status === 403) return Err(new Forbidden());
     if (!res.ok) throw new Error(`unexpected status ${res.status}`); // → Defect
     return fromPromise(res.json() as Promise<Profile>, defect); // malformed JSON → Defect
   });
@@ -61,11 +61,11 @@ Third-party code that throws is bridged once, at the boundary, with
 or a defect.
 
 ```ts
-import { fromThrowable, defect } from "unthrown";
+import { fromThrowable, Defect } from "unthrown";
 
 const parseProfile = fromThrowable(
   (raw: string) => JSON.parse(raw) as Profile,
-  (cause) => (cause instanceof SyntaxError ? new InvalidProfile({ field: "json" }) : defect(cause)),
+  (cause) => (cause instanceof SyntaxError ? new InvalidProfile({ field: "json" }) : Defect(cause)),
 );
 
 parseProfile('{"name":"Ada"}'); // Result<Profile, InvalidProfile>
