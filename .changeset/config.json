@@ -9,7 +9,9 @@
       "@unthrown/vitest",
       "@unthrown/effect",
       "@unthrown/neverthrow",
-      "@unthrown/boxed"
+      "@unthrown/boxed",
+      "@unthrown/oxlint",
+      "@unthrown/standard-schema"
     ]
   ],
   "linked": [],

@@ -1,5 +1,15 @@
 # @unthrown/standard-schema
 
+## 1.0.0
+
+### Major Changes
+
+- Aligned to the shared `1.0.0` version line: `@unthrown/standard-schema` is now
+  part of the fixed version group, so it releases in lockstep with `unthrown`
+  and the other `@unthrown/*` packages. No functional changes — this is the
+  package's first published version (the earlier `0.2.x` entries were never
+  released to npm).
+
 ## 0.2.1
 
 ### Patch Changes
