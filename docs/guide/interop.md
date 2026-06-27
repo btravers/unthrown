@@ -25,11 +25,11 @@ libraries have only two. That single difference decides every signature.
   form.
 
 ```ts
-import { ok } from "unthrown";
+import { Ok } from "unthrown";
 import { toNeverthrow } from "@unthrown/neverthrow";
 
 // onDefect is required — the compiler will not let you drop a defect.
-toNeverthrow(ok(1), (cause) => ({ _tag: "Bug", cause }));
+toNeverthrow(Ok(1), (cause) => ({ _tag: "Bug", cause }));
 ```
 
 ## Effect — a genuine bijection
@@ -38,12 +38,12 @@ Effect is the exception: it _does_ have a defect channel (`Cause.die`), so
 `Result ↔ Exit` round-trips losslessly.
 
 ```ts
-import { ok, err } from "unthrown";
+import { Ok, Err } from "unthrown";
 import { toExit, fromEffect } from "@unthrown/effect";
 import { Effect } from "effect";
 
-toExit(ok(1)); // Exit.succeed(1)
-toExit(err("e")); // Exit.fail("e")  — a modeled Cause.fail
+toExit(Ok(1)); // Exit.succeed(1)
+toExit(Err("e")); // Exit.fail("e")  — a modeled Cause.fail
 // a Defect would become Exit.die(cause)
 
 // Run an Effect and collect its outcome; a die/interrupt becomes a Defect:

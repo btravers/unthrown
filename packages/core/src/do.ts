@@ -2,7 +2,7 @@
 // `AsyncResult` method surface (core.ts); `Do()` just seeds an empty object
 // scope to grow.
 
-import { ok } from "./constructors.js";
+import { Ok } from "./constructors.js";
 import type { Result } from "./types.js";
 
 /**
@@ -17,7 +17,7 @@ import type { Result } from "./types.js";
  *
  * @example
  * ```ts
- * import { Do, ok } from "unthrown";
+ * import { Do, Ok } from "unthrown";
  *
  * const result = Do()
  *   .bind("user", () => findUser(id)) // Result<User, NotFound>
@@ -28,5 +28,5 @@ import type { Result } from "./types.js";
  * ```
  */
 export function Do(): Result<{}, never> {
-  return ok({});
+  return Ok({});
 }

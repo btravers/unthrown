@@ -33,18 +33,18 @@ import "@unthrown/vitest";
 ## The matchers
 
 ```ts
-import { ok, err } from "unthrown";
+import { Ok, Err } from "unthrown";
 import { expect, test } from "vitest";
 
 test("matchers", () => {
-  expect(ok(1)).toBeOk();
-  expect(ok(1)).toBeOkWith(1); // deep equality on the value
-  expect(err("e")).toBeErr();
-  expect(err(new NotFound())).toBeErrTagged("NotFound");
+  expect(Ok(1)).toBeOk();
+  expect(Ok(1)).toBeOkWith(1); // deep equality on the value
+  expect(Err("e")).toBeErr();
+  expect(Err(new NotFound())).toBeErrTagged("NotFound");
   expect(aDefect).toBeDefect();
 
   // negations work too
-  expect(ok(1)).not.toBeErr();
+  expect(Ok(1)).not.toBeErr();
 });
 ```
 
@@ -54,19 +54,19 @@ sets. A plain object matches it **exactly**; an asymmetric matcher matches it
 **partially**:
 
 ```ts
-import { err, TaggedError } from "unthrown";
+import { Err, TaggedError } from "unthrown";
 import { expect } from "vitest";
 
 class NotFound extends TaggedError("NotFound")<{ id: number; msg: string }> {}
 
 // exact — every payload field must match
-expect(err(new NotFound({ id: 1, msg: "nope" }))).toBeErrTagged("NotFound", {
+expect(Err(new NotFound({ id: 1, msg: "nope" }))).toBeErrTagged("NotFound", {
   id: 1,
   msg: "nope",
 });
 
 // partial — only the listed fields are checked
-expect(err(new NotFound({ id: 1, msg: "nope" }))).toBeErrTagged(
+expect(Err(new NotFound({ id: 1, msg: "nope" }))).toBeErrTagged(
   "NotFound",
   expect.objectContaining({ id: 1 }),
 );

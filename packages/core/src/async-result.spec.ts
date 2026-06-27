@@ -1,12 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { type AsyncResult, defect, err, fromPromise, fromSafePromise, ok } from "./index.js";
+import { type AsyncResult, Defect, Err, fromPromise, fromSafePromise, Ok } from "./index.js";
 
 const boom = new Error("boom");
-const asyncOk = <T>(v: T): AsyncResult<T, never> => ok(v).toAsync();
-const asyncErr = <E>(e: E): AsyncResult<never, E> => err(e).toAsync();
+const asyncOk = <T>(v: T): AsyncResult<T, never> => Ok(v).toAsync();
+const asyncErr = <E>(e: E): AsyncResult<never, E> => Err(e).toAsync();
 const asyncDefect = (): AsyncResult<number, never> =>
-  ok(0)
+  Ok(0)
     .toAsync()
     .map<number>(() => {
       throw boom;
@@ -33,7 +33,7 @@ describe("AsyncResult is awaitable and never rejects", () => {
     const asErr = await fromPromise(Promise.reject("modeled"), (c) => c as string);
     expect(asErr.unwrapErr()).toBe("modeled");
 
-    const asDefect = await fromPromise(Promise.reject(boom), (c) => defect(c));
+    const asDefect = await fromPromise(Promise.reject(boom), (c) => Defect(c));
     expect(asDefect.isDefect()).toBe(true);
   });
 
@@ -89,7 +89,7 @@ describe("AsyncResult success channel", () => {
   });
 
   it("flatMap composes with a Result", async () => {
-    expect((await asyncOk(2).flatMap((n) => ok(n * 5))).unwrap()).toBe(10);
+    expect((await asyncOk(2).flatMap((n) => Ok(n * 5))).unwrap()).toBe(10);
   });
 
   it("flatMap composes further async work via a qualified boundary", async () => {
@@ -105,12 +105,12 @@ describe("AsyncResult success channel", () => {
   });
 
   it("flatTap keeps the original value when the effect succeeds", async () => {
-    const r = await asyncOk(5).flatTap((n) => ok(n * 100));
+    const r = await asyncOk(5).flatTap((n) => Ok(n * 100));
     expect(r.unwrap()).toBe(5); // original, not 500
   });
 
   it("flatTap short-circuits to the effect's Err", async () => {
-    expect((await asyncOk(5).flatTap(() => err("denied"))).unwrapErr()).toBe("denied");
+    expect((await asyncOk(5).flatTap(() => Err("denied"))).unwrapErr()).toBe("denied");
   });
 
   it("flatTap composes an async effect via a qualified boundary, keeping the value", async () => {
@@ -119,7 +119,7 @@ describe("AsyncResult success channel", () => {
   });
 
   it("flatTap does not run the effect on Err or Defect", async () => {
-    const f = vi.fn(() => ok(1));
+    const f = vi.fn(() => Ok(1));
     expect((await asyncErr("e").flatTap(f)).unwrapErr()).toBe("e");
     expect((await asyncDefect().flatTap(f)).isDefect()).toBe(true);
     expect(f).not.toHaveBeenCalled();
@@ -138,7 +138,7 @@ describe("AsyncResult error channel", () => {
   });
 
   it("orElse recovers an Err", async () => {
-    expect((await asyncErr("e").orElse(() => ok(9))).unwrap()).toBe(9);
+    expect((await asyncErr("e").orElse(() => Ok(9))).unwrap()).toBe(9);
   });
 
   it("orElse composes async recovery via a qualified boundary", async () => {
@@ -160,7 +160,7 @@ describe("AsyncResult error channel", () => {
   });
 });
 
-describe("AsyncResult defect channel", () => {
+describe("AsyncResult Defect channel", () => {
   it("a Defect flows through the success and error combinators untouched", async () => {
     const f = vi.fn();
     expect((await asyncDefect().map(f)).isDefect()).toBe(true);
@@ -170,7 +170,7 @@ describe("AsyncResult defect channel", () => {
   });
 
   it("recoverDefect is the only door — it replaces the Defect", async () => {
-    const r = await asyncDefect().recoverDefect((c) => ok(c === boom));
+    const r = await asyncDefect().recoverDefect((c) => Ok(c === boom));
     expect(r.unwrap()).toBe(true);
   });
 
@@ -201,7 +201,7 @@ describe("AsyncResult eliminators", () => {
   });
 
   it("unwrapOr / unwrapOrElse recover an Err", async () => {
-    const e: AsyncResult<number, string> = err("e").toAsync();
+    const e: AsyncResult<number, string> = Err("e").toAsync();
     await expect(e.unwrapOr(9)).resolves.toBe(9);
     await expect(e.unwrapOrElse((s) => s.length)).resolves.toBe(1);
   });

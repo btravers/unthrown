@@ -49,20 +49,20 @@ import { match } from "ts-pattern";
 import * as P from "@unthrown/pattern";
 
 const status = match(result)
-  .with(P.ok(), ({ value }) => 200)
-  .with(P.err(P.tag("NotFound")), () => 404)
-  .with(P.err(P.tag("Forbidden")), ({ error }) => {
+  .with(P.Ok(), ({ value }) => 200)
+  .with(P.Err(P.tag("NotFound")), () => 404)
+  .with(P.Err(P.tag("Forbidden")), ({ error }) => {
     audit(error.user); // narrowed to Forbidden — payload available
     return 403;
   })
-  .with(P.defect(), ({ cause }) => 500)
+  .with(P.Defect(), ({ cause }) => 500)
   .exhaustive();
 ```
 
-- `P.ok(sub?)` / `P.err(sub?)` / `P.defect(sub?)` — match a channel; pass a
+- `P.Ok(sub?)` / `P.Err(sub?)` / `P.Defect(sub?)` — match a channel; pass a
   sub-pattern to constrain or select the payload: a literal, or any `ts-pattern`
   pattern.
-- `P.tag(t)` — sugar for `{ _tag: t }`; nested in `P.err(...)` it narrows to the
+- `P.tag(t)` — sugar for `{ _tag: t }`; nested in `P.Err(...)` it narrows to the
   matching tagged-error variant, payload and all.
 
 Above, `P` is `@unthrown/pattern`. To also use `ts-pattern`'s own patterns
@@ -74,7 +74,7 @@ import { match, P as t } from "ts-pattern";
 import * as P from "@unthrown/pattern";
 
 match(result)
-  .with(P.ok(t.select()), (value) => value) // t.select() is ts-pattern's
+  .with(P.Ok(t.select()), (value) => value) // t.select() is ts-pattern's
   .otherwise(() => 0);
 ```
 
@@ -87,9 +87,9 @@ result is a plain, matchable `Result`:
 
 ```ts
 const status = match(await asyncResult)
-  .with(P.ok(), () => 200)
-  .with(P.err(), () => 400)
-  .with(P.defect(), () => 500)
+  .with(P.Ok(), () => 200)
+  .with(P.Err(), () => 400)
+  .with(P.Defect(), () => 500)
   .exhaustive();
 ```
 

@@ -26,10 +26,10 @@ a `qualify` function that triages the thrown cause into a modeled error `E` or a
 `defect`:
 
 ```ts
-import { fromThrowable, defect } from "unthrown";
+import { fromThrowable, Defect } from "unthrown";
 
 const parse = fromThrowable(JSON.parse, (cause) =>
-  cause instanceof SyntaxError ? ("invalid_json" as const) : defect(cause),
+  cause instanceof SyntaxError ? ("invalid_json" as const) : Defect(cause),
 );
 
 parse("{ not json"); // Err("invalid_json")
@@ -44,10 +44,10 @@ A throw _inside_ `qualify` is itself treated as a defect.
 [`AsyncResult`](./async-results). Every rejection **must** be triaged:
 
 ```ts
-import { fromPromise, defect } from "unthrown";
+import { fromPromise, Defect } from "unthrown";
 
 const user = fromPromise(fetchUser(id), (cause) =>
-  cause instanceof NotFoundError ? new NotFound() : defect(cause),
+  cause instanceof NotFoundError ? new NotFound() : Defect(cause),
 );
 ```
 
@@ -58,7 +58,7 @@ The boxed/neverthrow "original sin" is `fromPromise(p): AsyncResult<T, unknown>`
 
 The error channel is inferred as `Exclude<R, Defect>` — the `Defect` arm of
 `qualify`'s return is **subtracted**, never inferred into `E`. So a `qualify`
-that returns _only_ `defect(cause)` gives `AsyncResult<T, never>`, not
+that returns _only_ `Defect(cause)` gives `AsyncResult<T, never>`, not
 `AsyncResult<T, Defect>` — a defect stays out-of-band. (When _every_ rejection is
 a defect, reach for `fromSafePromise` below.)
 

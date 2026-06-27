@@ -170,12 +170,12 @@ export type ResultMethods<T, E> = {
    * @remarks
    * Runs `f` only when a `Defect` is present, re-entering the modeled world by
    * returning a `Result` (an `Ok` or a fresh `Err`). `Ok` and `Err` pass
-   * through. Recovering a defect should be rare: usually you let it bubble to
+   * through. Recovering a Defect should be rare: usually you let it bubble to
    * the edge. If `f` throws, the throw becomes a new `Defect`.
    *
    * @typeParam U - a success type the recovery may produce.
    * @typeParam E2 - an error type the recovery may produce.
-   * @param f - maps the defect's unknown cause to a recovering `Result`.
+   * @param f - maps the Defect's unknown cause to a recovering `Result`.
    */
   recoverDefect<U, E2>(f: (cause: unknown) => Result<U, E2>): Result<T | U, E | E2>;
   /**
@@ -190,9 +190,9 @@ export type ResultMethods<T, E> = {
    * Exhaustively fold all three runtime states into a single value of type `R`.
    *
    * @remarks
-   * Exactly one handler runs. Together with the throw-to-defect guarantee, this
+   * Exactly one handler runs. Together with the throw-to-Defect guarantee, this
    * is typically the single place a pipeline is handled at the edge — mapping
-   * `ok`/`err`/`defect` to (for example) 2xx / 4xx / 5xx with no `try`/`catch`.
+   * `Ok`/`Err`/`Defect` to (for example) 2xx / 4xx / 5xx with no `try`/`catch`.
    * (For richer matching, a `Result` is also a discriminated union — branch on
    * its `tag` property, e.g. with `ts-pattern`.)
    *
@@ -206,7 +206,7 @@ export type ResultMethods<T, E> = {
    * @returns the `Ok` value.
    * @throws On `Err`, an {@link UnwrapError} carrying the error. On a `Defect`,
    * re-throws the **original cause** with its original stack, so an unhandled
-   * defect surfaces at the global handler as the real failure.
+   * Defect surfaces at the global handler as the real failure.
    */
   unwrap(): T;
   /**
@@ -221,7 +221,7 @@ export type ResultMethods<T, E> = {
    * The success value, or `fallback` on `Err`.
    *
    * @param fallback - returned when the result is an `Err`.
-   * @throws Re-throws on a `Defect` — a defect is a bug, not an absent value, so
+   * @throws Re-throws on a `Defect` — a Defect is a bug, not an absent value, so
    * it is never silently replaced.
    */
   unwrapOr(fallback: T): T;
@@ -282,7 +282,7 @@ export type DefectView<T = never, E = never> = ResultMethods<T, E> & {
  *
  * - **`Ok`** — a success carrying a `value: T`.
  * - **`Err`** — a modeled, anticipated failure carrying an `error: E`.
- * - **`Defect`** — an *unmodeled* failure carrying an unknown `cause`. A defect
+ * - **`Defect`** — an *unmodeled* failure carrying an unknown `cause`. A Defect
  *   never appears in `E`; it is the library's third, out-of-band channel.
  *
  * Because it is a real union, you can match it natively (a `switch` on `tag`, or
@@ -296,10 +296,10 @@ export type DefectView<T = never, E = never> = ResultMethods<T, E> & {
  *
  * @example
  * ```ts
- * import { ok, err, type Result } from "unthrown";
+ * import { Ok, Err, type Result } from "unthrown";
  *
  * function half(n: number): Result<number, "odd"> {
- *   return n % 2 === 0 ? ok(n / 2) : err("odd");
+ *   return n % 2 === 0 ? Ok(n / 2) : Err("odd");
  * }
  *
  * const message = half(10).match({

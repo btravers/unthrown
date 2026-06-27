@@ -1,6 +1,6 @@
 // Defect marker plumbing.
 
-const DEFECT: unique symbol = Symbol("unthrown/defect");
+const DEFECT: unique symbol = Symbol("unthrown/Defect");
 
 /**
  * The marker a `qualify` function returns to triage a cause as **unexpected**.
@@ -8,7 +8,7 @@ const DEFECT: unique symbol = Symbol("unthrown/defect");
  * @remarks
  * `qualify` (passed to {@link fromPromise} / {@link fromThrowable}) returns
  * `E | Defect`: either a modeled domain error, or a `Defect` produced by
- * {@link defect} to say "this failure is not modeled". A `Defect` is opaque —
+ * {@link Defect} to say "this failure is not modeled". A `Defect` is opaque —
  * it carries the original cause for the boundary to convert into the third
  * runtime state of a `Result`.
  */
@@ -22,18 +22,18 @@ export type Defect = {
  * function when a failure is **not** a modeled domain error.
  *
  * @param cause - the original thrown/rejected value.
- * @returns an opaque defect marker carrying `cause`.
+ * @returns an opaque Defect marker carrying `cause`.
  *
  * @example
  * ```ts
- * import { fromPromise, defect } from "unthrown";
+ * import { fromPromise, Defect } from "unthrown";
  *
  * const user = fromPromise(fetchUser(id), (cause) =>
- *   cause instanceof NotFoundError ? cause : defect(cause),
+ *   cause instanceof NotFoundError ? cause : Defect(cause),
  * );
  * ```
  */
-export function defect(cause: unknown): Defect {
+export function Defect(cause: unknown): Defect {
   return { [DEFECT]: true, cause };
 }
 

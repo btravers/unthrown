@@ -1,23 +1,23 @@
 import { Future, Result as BoxedResult } from "@bloodyowl/boxed";
-import { err, ok, type Result } from "unthrown";
+import { Err, Ok, type Result } from "unthrown";
 import { describe, expect, it } from "vitest";
 
 import { fromBoxed, fromBoxedFuture, toBoxed, toBoxedFuture } from "./index.js";
 
 const boom = new Error("boom");
-const aDefect: Result<number, string> = ok(0).map<number>(() => {
+const aDefect: Result<number, string> = Ok(0).map<number>(() => {
   throw boom;
 });
 
 describe("toBoxed", () => {
   it("maps Ok and Err across", () => {
-    const okR = toBoxed(ok(1), () => "x");
+    const okR = toBoxed(Ok(1), () => "x");
     expect(okR.isOk() && okR.get()).toBe(1);
-    const errR = toBoxed(err("nope") as Result<number, string>, () => "x");
+    const errR = toBoxed(Err("nope") as Result<number, string>, () => "x");
     expect(errR.isError() && errR.getError()).toBe("nope");
   });
 
-  it("forces a defect to be triaged into the error channel", () => {
+  it("forces a Defect to be triaged into the error channel", () => {
     const r = toBoxed(aDefect, (cause) => `bug:${String(cause)}`);
     expect(r.isError() && r.getError()).toBe(`bug:${String(boom)}`);
   });
@@ -31,8 +31,8 @@ describe("fromBoxed", () => {
 });
 
 describe("toBoxedFuture", () => {
-  it("maps Ok across and triages a defect", async () => {
-    const okR = await toBoxedFuture(ok(1).toAsync(), () => "x").toPromise();
+  it("maps Ok across and triages a Defect", async () => {
+    const okR = await toBoxedFuture(Ok(1).toAsync(), () => "x").toPromise();
     expect(okR.isOk() && okR.get()).toBe(1);
     const defR = await toBoxedFuture(
       aDefect.toAsync(),

@@ -50,13 +50,13 @@ pnpm add unthrown
 ## Example
 
 ```ts
-import { fromPromise, defect, TaggedError } from "unthrown";
+import { fromPromise, Defect, TaggedError } from "unthrown";
 
 class NotFound extends TaggedError("NotFound") {}
 
 // Cross an async boundary — every rejection MUST be triaged into E or a defect.
 const user = fromPromise(fetchUser(id), (cause) =>
-  cause instanceof NotFoundError ? new NotFound() : defect(cause),
+  cause instanceof NotFoundError ? new NotFound() : Defect(cause),
 );
 
 // Handle every channel once, at the edge — no surrounding try/catch.
@@ -79,7 +79,7 @@ defect, so the edge of your program needs a single `match` and no `try`/`catch`.
 | ----------------------------------------------- | ---------------------------------------------------------------------------------------------- |
 | [`unthrown`](./packages/core)                   | The core `Result` / `AsyncResult`, interop, `TaggedError`, `matchTags`. Zero runtime deps.     |
 | [`@unthrown/vitest`](./packages/vitest)         | Vitest matchers: `toBeOk`, `toBeOkWith`, `toBeErr`, `toBeErrTagged`, `toBeDefect`.             |
-| [`@unthrown/pattern`](./packages/pattern)       | Thin `ts-pattern` sugar for the natively-matchable `Result`: `P.ok`/`P.err`/`P.defect`, `tag`. |
+| [`@unthrown/pattern`](./packages/pattern)       | Thin `ts-pattern` sugar for the natively-matchable `Result`: `P.Ok`/`P.Err`/`P.Defect`, `tag`. |
 | [`@unthrown/effect`](./packages/effect)         | Effect interop: `Result ↔ Exit` (bijection), `Either`, `Effect`.                               |
 | [`@unthrown/neverthrow`](./packages/neverthrow) | neverthrow interop: `Result ↔ Result`, `AsyncResult ↔ ResultAsync`.                            |
 | [`@unthrown/boxed`](./packages/boxed)           | Boxed interop: `Result ↔ Result`, `AsyncResult ↔ Future<Result>`.                              |

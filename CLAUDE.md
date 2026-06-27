@@ -86,7 +86,7 @@ async work re-enters via `fromPromise` / `fromSafePromise` and composes with
 - success: `map`, `flatMap`, `tap`, `flatTap` (a failable `tap` — runs a
   `Result`-returning effect, keeps the original value, threads the effect's
   error), `as`
-- do-notation: `Do()` (entry — `ok({})`, an empty object scope; capitalised
+- do-notation: `Do()` (entry — `Ok({})`, an empty object scope; capitalised
   because `do` is reserved) plus the methods `bind(name, f)` (sequence a
   `Result`-returning step, binding its value under `name` in an accumulating
   **readonly** object scope; errors union `E | E2`) and `let(name, f)` (bind a
@@ -101,7 +101,7 @@ async work re-enters via `fromPromise` / `fromSafePromise` and composes with
   `isOk`/`isErr`/`isDefect` both narrow (to `OkView`/`ErrView`/`DefectView`) — the
   methods are `this is …` type predicates, so `if (r.isErr()) r.error` compiles.
   One narrowing concept, two call styles.
-- constructors: `ok`, `err`, `defect`
+- constructors: `Ok`, `Err`, `Defect`
 - interop: `fromNullable`, `fromThrowable`, `fromPromise`, `fromSafePromise`
 - aggregate: `all` / `allAsync` take a **tuple/array** (a fixed tuple keeps
   positional types; a dynamic `Result<T, E>[]` / `AsyncResult<T, E>[]` collapses
@@ -115,7 +115,7 @@ async work re-enters via `fromPromise` / `fromSafePromise` and composes with
   reject. The record fold writes keys via `Object.defineProperty`, so a
   caller-supplied `"__proto__"` key can't pollute the prototype.
 - facade: a `Result` companion object aliases the standalone entry points
-  (`Result.ok`/`err`/`defect`/`Do`/`from*`/`all`/`allAsync`/`allFromDict`/`allFromDictAsync`/`is*`)
+  (`Result.Ok`/`Err`/`Defect`/`Do`/`from*`/`all`/`allAsync`/`allFromDict`/`allFromDictAsync`/`is*`)
   for discoverability;
   the free functions remain the primary, tree-shakeable API. One concept, two
   import styles — not a second concept.
@@ -155,10 +155,10 @@ library can be "done".
   type-checks on the `Ok` variant. `AsyncRes` operates purely on the public
   `Result` union (wraps a `Promise<Result>`, branches on `r.tag`), never on `Res`
   internals.
-- **Builders are free functions** (`ok`, `err`, …) because they tree-shake — and
+- **Builders are free functions** (`Ok`, `Err`, …) because they tree-shake — and
   there is a `bundle-size` CI gate that protects this. The `Result` companion
   object is additive sugar (value + type share the name via a re-alias in
-  `facade.ts`); it must stay a separate export so `import { ok }` never pulls it
+  `facade.ts`); it must stay a separate export so `import { Ok }` never pulls it
   in.
 - **`AsyncResult` is `Awaitable<Result<T,E>>`, not `PromiseLike`.** Its `then`
   stays a runtime thenable (so `await` collapses it) and forwards `onrejected`
@@ -166,7 +166,7 @@ library can be "done".
   promise never rejects.
 - **Source layout** (`packages/core/src/`): `types.ts` (public types), `defect.ts`
   (the `Defect` marker), `core.ts` (the `Res`/`AsyncRes` engine + `UnwrapError`),
-  `constructors.ts` (`ok`/`err` + guards), `interop.ts` (`from*`/`qualify`/`all`),
+  `constructors.ts` (`Ok`/`Err` + guards), `interop.ts` (`from*`/`qualify`/`all`),
   `facade.ts` (the `Result` object), `tagged.ts` (`TaggedError`/`matchTags`), and
   `index.ts` (the curated public re-exports — the one place the API is decided).
 

@@ -3,11 +3,11 @@
 
 import { describe, expect, it, vi } from "vitest";
 
-import { Do, err, fromSafePromise, ok, type Result, UnwrapError } from "./index.js";
+import { Do, Err, fromSafePromise, Ok, type Result, UnwrapError } from "./index.js";
 
 const boom = new Error("boom");
 const defectOf = (cause: unknown): Result<number, never> =>
-  ok(0).map<number>(() => {
+  Ok(0).map<number>(() => {
     throw cause;
   });
 
@@ -16,16 +16,16 @@ describe("Invariant 1: throw inside any combinator becomes a Defect", () => {
     const t = () => {
       throw boom;
     };
-    expect(ok(1).map(t).isDefect()).toBe(true);
-    expect(ok(1).flatMap(t).isDefect()).toBe(true);
-    expect(ok(1).tap(t).isDefect()).toBe(true);
-    expect(ok(1).flatTap(t).isDefect()).toBe(true);
+    expect(Ok(1).map(t).isDefect()).toBe(true);
+    expect(Ok(1).flatMap(t).isDefect()).toBe(true);
+    expect(Ok(1).tap(t).isDefect()).toBe(true);
+    expect(Ok(1).flatTap(t).isDefect()).toBe(true);
     expect(Do().bind("a", t).isDefect()).toBe(true);
     expect(Do().let("a", t).isDefect()).toBe(true);
-    expect(err("e").mapErr(t).isDefect()).toBe(true);
-    expect(err("e").orElse(t).isDefect()).toBe(true);
-    expect(err("e").recover(t).isDefect()).toBe(true);
-    expect(err("e").tapErr(t).isDefect()).toBe(true);
+    expect(Err("e").mapErr(t).isDefect()).toBe(true);
+    expect(Err("e").orElse(t).isDefect()).toBe(true);
+    expect(Err("e").recover(t).isDefect()).toBe(true);
+    expect(Err("e").tapErr(t).isDefect()).toBe(true);
     expect(defectOf(boom).recoverDefect(t).isDefect()).toBe(true);
     expect(defectOf(boom).tapDefect(t).isDefect()).toBe(true);
   });
@@ -51,7 +51,7 @@ describe("Invariant 2: a Defect flows through every method except match() and re
     expect(f).not.toHaveBeenCalled();
   });
 
-  it("the recovering eliminators still THROW on a Defect (they recover Err, not a defect)", () => {
+  it("the recovering eliminators still THROW on a Defect (they recover Err, not a Defect)", () => {
     const d = defectOf(boom);
     expect(() => d.unwrapOr(0)).toThrow();
     expect(() => d.unwrapOrElse(() => 0)).toThrow();
@@ -59,11 +59,11 @@ describe("Invariant 2: a Defect flows through every method except match() and re
     expect(() => d.getOrUndefined()).toThrow();
   });
 
-  it("only match() and recoverDefect() observe the defect", () => {
+  it("only match() and recoverDefect() observe the Defect", () => {
     expect(defectOf(boom).match({ ok: () => "o", err: () => "e", defect: () => "d" })).toBe("d");
     expect(
       defectOf(boom)
-        .recoverDefect(() => ok("handled"))
+        .recoverDefect(() => Ok("handled"))
         .unwrap(),
     ).toBe("handled");
   });
@@ -72,7 +72,7 @@ describe("Invariant 2: a Defect flows through every method except match() and re
 describe("Invariant 3: unwrap() is asymmetric", () => {
   it("on Err throws an UnwrapError carrying E", () => {
     try {
-      err("modeled").unwrap();
+      Err("modeled").unwrap();
       expect.unreachable();
     } catch (e) {
       expect(e).toBeInstanceOf(UnwrapError);

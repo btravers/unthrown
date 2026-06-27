@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { Do, err, fromSafePromise, ok, type Result } from "./index.js";
+import { Do, Err, fromSafePromise, Ok, type Result } from "./index.js";
 
 const boom = new Error("boom");
 const defectOf = (cause: unknown): Result<number, never> =>
-  ok(0).map<number>(() => {
+  Ok(0).map<number>(() => {
     throw cause;
   });
 
@@ -15,30 +15,30 @@ describe("Do / bind / let", () => {
 
   it("accumulates bound Results and pure lets into a named scope", () => {
     const r = Do()
-      .bind("a", () => ok(1))
-      .bind("b", ({ a }) => ok(a + 1))
+      .bind("a", () => Ok(1))
+      .bind("b", ({ a }) => Ok(a + 1))
       .let("c", ({ a, b }) => a + b);
     expect(r.unwrap()).toEqual({ a: 1, b: 2, c: 3 });
   });
 
   it("short-circuits on the first Err and skips later steps", () => {
-    const later = vi.fn(() => ok(2));
+    const later = vi.fn(() => Ok(2));
     const r = Do()
-      .bind("a", () => err("denied"))
+      .bind("a", () => Err("denied"))
       .bind("b", later);
     expect(r.unwrapErr()).toBe("denied");
     expect(later).not.toHaveBeenCalled();
   });
 
   it("unions the error types across binds", () => {
-    const a: Result<{ x: number }, "e1"> = Do().bind("x", () => err<"e1">("e1"));
-    const b = a.bind("y", () => err<"e2">("e2"));
+    const a: Result<{ x: number }, "e1"> = Do().bind("x", () => Err<"e1">("e1"));
+    const b = a.bind("y", () => Err<"e2">("e2"));
     // `b` is Result<{ x; y }, "e1" | "e2"> — exercised at runtime here:
     expect(b.unwrapErr()).toBe("e1");
   });
 
   it("propagates a Defect and does not run later steps", () => {
-    const later = vi.fn(() => ok(1));
+    const later = vi.fn(() => Ok(1));
     const r = Do()
       .bind("a", () => defectOf(boom))
       .let("b", later);
@@ -69,7 +69,7 @@ describe("Do / bind / let — async", () => {
     const r = await Do()
       .toAsync()
       .bind("a", () => fromSafePromise(Promise.resolve(1)))
-      .bind("b", ({ a }) => ok(a + 1)) // a sync Result is accepted too
+      .bind("b", ({ a }) => Ok(a + 1)) // a sync Result is accepted too
       .let("c", ({ a, b }) => a + b);
     expect(r.unwrap()).toEqual({ a: 1, b: 2, c: 3 });
   });
@@ -77,8 +77,8 @@ describe("Do / bind / let — async", () => {
   it("short-circuits on an async Err", async () => {
     const r = await Do()
       .toAsync()
-      .bind("a", () => err("denied"))
-      .bind("b", () => ok(1));
+      .bind("a", () => Err("denied"))
+      .bind("b", () => Ok(1));
     expect(r.unwrapErr()).toBe("denied");
   });
 
