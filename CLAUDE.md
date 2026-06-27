@@ -170,6 +170,13 @@ enough that the library can be "done".
   types-only `@standard-schema/spec`; bridges Zod/Valibot/ArkType validators to
   `Result` via `fromSchema` / `fromSchemaAsync`, with the validation issues as
   the modeled `E`)
+- `packages/oxlint` → `@unthrown/oxlint` (an oxlint **JS plugin**, peerDep
+  `oxlint`, dep `@oxlint/plugins`; ships `no-ambiguous-error-type` — enforces
+  Thesis #1 against `unknown`/`any`/`Error`/`{}` in `E` — and
+  `prefer-async-result`. Purely syntactic AST rules that resolve the import
+  source via scope analysis so they only fire on unthrown's `Result`. No TypeDoc
+  API page; documented in the Linting guide. Tested with oxlint's `RuleTester`
+  from `oxlint/plugins-dev`.)
 - `tools/tsconfig`, `tools/typedoc` → private shared config (`@unthrown/tsconfig`,
   `@unthrown/typedoc`)
 - `docs` → `@unthrown/docs`, the VitePress site (guide + TypeDoc-generated API
