@@ -285,7 +285,8 @@ export type Awaitable<T> = {
  * {@link fromPromise} forces. To do further async work, re-enter through a
  * qualified boundary and compose it: `ar.flatMap((v) => fromPromise(work(v),
  * qualify))`. The eliminators (`unwrap`, …) return promises; the binds
- * (`flatMap`, `orElse`, `recoverDefect`) additionally accept an `AsyncResult`.
+ * (`flatMap`, `flatTap`, `orElse`, `recoverDefect`) additionally accept an
+ * `AsyncResult`.
  *
  * To pattern-match an `AsyncResult`, `await` it first: `match(await ar)`.
  *

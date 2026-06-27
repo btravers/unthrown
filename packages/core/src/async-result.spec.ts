@@ -118,6 +118,13 @@ describe("AsyncResult success channel", () => {
     expect(r.unwrap()).toBe(5);
   });
 
+  it("flatTap does not run the effect on Err or Defect", async () => {
+    const f = vi.fn(() => ok(1));
+    expect((await asyncErr("e").flatTap(f)).unwrapErr()).toBe("e");
+    expect((await asyncDefect().flatTap(f)).isDefect()).toBe(true);
+    expect(f).not.toHaveBeenCalled();
+  });
+
   it("as replaces the Ok value, and passes Err/Defect through", async () => {
     expect((await asyncOk(1).as("x")).unwrap()).toBe("x");
     expect((await asyncErr("e").as("x")).unwrapErr()).toBe("e");
