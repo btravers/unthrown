@@ -143,9 +143,14 @@ library can be "done".
   and return them as the variant type (`OkView`/`ErrView`/`DefectView`) — so a
   builder yields a value that already _is_ a union member, with **no construction
   cast**. `Res` methods type `this` as `Result<T, E>` and narrow on `tag`. The
-  only remaining casts are the inherent type-changing pass-throughs (`map` reusing
-  an `Err` as a differently-typed `Result`) — the same `as unknown as` boxed uses,
-  sound because the passed-through variant carries no value of the changed type.
+  type-changing pass-throughs (`map` reusing an `Err` as a differently-typed
+  `Result`) **all funnel through one `passThrough` helper** — a single sound
+  `as unknown as` in one place (boxed instead casts inline at every branch), since
+  the passed-through variant carries no value of the changed success type. We
+  deliberately **do not reconstruct** the variant (neverthrow's approach) — that
+  would allocate a fresh object on every short-circuit. The only other casts are
+  the `bind`/`let` scope merge (a computed key widens to an index signature, so it
+  can't be spelled at the type level) and the builder construction noted above.
 - "Check before you access" is enforced by the union: `result.value` only
   type-checks on the `Ok` variant. `AsyncRes` operates purely on the public
   `Result` union (wraps a `Promise<Result>`, branches on `r.tag`), never on `Res`
